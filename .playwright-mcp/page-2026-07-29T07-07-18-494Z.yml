@@ -1,0 +1,107 @@
+- generic [ref=f1e2]:
+  - navigation [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - link [ref=f1e5] [cursor=pointer]:
+        - /url: /
+        - img "Muakey" [ref=f1e6]
+      - generic [ref=f1e7]:
+        - link "  Danh sách family" [ref=f1e8] [cursor=pointer]:
+          - /url: /families
+          - generic [ref=f1e9]:  
+          - text: Danh sách family
+        - link " Thêm family" [ref=f1e10] [cursor=pointer]:
+          - /url: /families/create
+          - generic [ref=f1e11]: 
+          - text: Thêm family
+        - link "  Danh sách hướng dẫn" [ref=f1e12] [cursor=pointer]:
+          - /url: /collaborators
+          - generic [ref=f1e13]:  
+          - text: Danh sách hướng dẫn
+        - link " Thêm form hướng dẫn" [ref=f1e14] [cursor=pointer]:
+          - /url: /collaborators/create
+          - generic [ref=f1e15]: 
+          - text: Thêm form hướng dẫn
+        - button "Đăng xuất" [ref=f1e17] [cursor=pointer]
+  - main [ref=f1e19]:
+    - generic [ref=f1e23]:
+      - heading "Thêm family" [level=3] [ref=f1e25]
+      - generic [ref=f1e27]:
+        - generic [ref=f1e28]:
+          - textbox "Email" [ref=f1e29]: test_bank_select@example.com
+          - textbox "Họ và tên" [ref=f1e30]: Nguyen Van Test
+          - textbox "Số điện thoại" [ref=f1e31]: "0900000000"
+          - textbox "Số tài khoản" [active] [ref=f1e32]: "123456789"
+          - combobox [ref=f1e33] [cursor=pointer]:
+            - option "-- Chọn ngân hàng --"
+            - option "ABBANK - Ngân hàng TMCP An Bình"
+            - option "ACB - Ngân hàng TMCP Á Châu"
+            - option "Agribank - Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam"
+            - option "BacABank - Ngân hàng TMCP Bắc Á"
+            - option "BaoVietBank - Ngân hàng TMCP Bảo Việt"
+            - option "BIDV - Ngân hàng TMCP Đầu tư và Phát triển Việt Nam"
+            - option "CAKE - TMCP Việt Nam Thịnh Vượng - Ngân hàng số CAKE by VPBank"
+            - option "CBBank - Ngân hàng Thương mại TNHH MTV Xây dựng Việt Nam"
+            - option "CIMB - Ngân hàng TNHH MTV CIMB Việt Nam"
+            - option "Citibank - Ngân hàng Citibank, N.A. - Chi nhánh Hà Nội"
+            - option "COOPBANK - Ngân hàng Hợp tác xã Việt Nam"
+            - option "DBSBank - DBS Bank Ltd - Chi nhánh Thành phố Hồ Chí Minh"
+            - option "Eximbank - Ngân hàng TMCP Xuất Nhập khẩu Việt Nam"
+            - option "GPBank - Ngân hàng Thương mại TNHH MTV Dầu Khí Toàn Cầu"
+            - option "HDBank - Ngân hàng TMCP Phát triển Thành phố Hồ Chí Minh"
+            - option "HongLeong - Ngân hàng TNHH MTV Hong Leong Việt Nam"
+            - option "HSBC - Ngân hàng TNHH MTV HSBC (Việt Nam)"
+            - option "IBKHCM - Ngân hàng Công nghiệp Hàn Quốc - Chi nhánh TP. Hồ Chí Minh"
+            - option "IBKHN - Ngân hàng Công nghiệp Hàn Quốc - Chi nhánh Hà Nội"
+            - option "IndovinaBank - Ngân hàng TNHH Indovina"
+            - option "KBank - Ngân hàng Đại chúng TNHH Kasikornbank"
+            - option "KEBHanaHCM - Ngân hàng KEB Hana – Chi nhánh Thành phố Hồ Chí Minh"
+            - option "KEBHANAHN - Ngân hàng KEB Hana – Chi nhánh Hà Nội"
+            - option "KienLongBank - Ngân hàng TMCP Kiên Long"
+            - option "KookminHCM - Ngân hàng Kookmin - Chi nhánh Thành phố Hồ Chí Minh"
+            - option "KookminHN - Ngân hàng Kookmin - Chi nhánh Hà Nội"
+            - option "LPBank - Ngân hàng TMCP Lộc Phát Việt Nam"
+            - option "MAFC - Công ty Tài chính TNHH MTV Mirae Asset (Việt Nam)"
+            - option "MBBank - Ngân hàng TMCP Quân đội"
+            - option "MBV - Ngân hàng TNHH MTV Việt Nam Hiện Đại"
+            - option "MoMo - CTCP Dịch Vụ Di Động Trực Tuyến"
+            - option "MSB - Ngân hàng TMCP Hàng Hải Việt Nam"
+            - option "NamABank - Ngân hàng TMCP Nam Á"
+            - option "NCB - Ngân hàng TMCP Quốc Dân"
+            - option "Nonghyup - Ngân hàng Nonghyup - Chi nhánh Hà Nội"
+            - option "OCB - Ngân hàng TMCP Phương Đông"
+            - option "PGBank - Ngân hàng TMCP Thịnh vượng và Phát triển"
+            - option "PublicBank - Ngân hàng TNHH MTV Public Việt Nam"
+            - option "PVcomBank - Ngân hàng TMCP Đại Chúng Việt Nam"
+            - option "PVcomBank Pay - Ngân hàng TMCP Đại Chúng Việt Nam Ngân hàng số"
+            - option "Sacombank - Ngân hàng TMCP Sài Gòn Thương Tín"
+            - option "SaigonBank - Ngân hàng TMCP Sài Gòn Công Thương"
+            - option "SCB - Ngân hàng TMCP Sài Gòn"
+            - option "SeABank - Ngân hàng TMCP Đông Nam Á"
+            - option "SHB - Ngân hàng TMCP Sài Gòn - Hà Nội"
+            - option "ShinhanBank - Ngân hàng TNHH MTV Shinhan Việt Nam"
+            - option "StandardChartered - Ngân hàng TNHH MTV Standard Chartered Bank Việt Nam"
+            - option "Techcombank - Ngân hàng TMCP Kỹ thương Việt Nam"
+            - option "Timo - Ngân hàng số Timo by Ban Viet Bank (Timo by Ban Viet Bank)"
+            - option "TPBank - Ngân hàng TMCP Tiên Phong"
+            - option "Ubank - TMCP Việt Nam Thịnh Vượng - Ngân hàng số Ubank by VPBank"
+            - option "UnitedOverseas - Ngân hàng United Overseas - Chi nhánh TP. Hồ Chí Minh"
+            - option "VBSP - Ngân hàng Chính sách Xã hội"
+            - option "VIB - Ngân hàng TMCP Quốc tế Việt Nam"
+            - option "VietABank - Ngân hàng TMCP Việt Á"
+            - option "VietBank - Ngân hàng TMCP Việt Nam Thương Tín"
+            - option "VietCapitalBank - Ngân hàng TMCP Bản Việt"
+            - option "Vietcombank - Ngân hàng TMCP Ngoại Thương Việt Nam" [selected]
+            - option "VietinBank - Ngân hàng TMCP Công thương Việt Nam"
+            - option "ViettelMoney - Tổng Công ty Dịch vụ số Viettel - Chi nhánh tập đoàn công nghiệp viễn thông Quân Đội"
+            - option "Vikki - Ngân hàng TNHH MTV Số Vikki"
+            - option "VNPTMoney - VNPT Money"
+            - option "VPBank - Ngân hàng TMCP Việt Nam Thịnh Vượng"
+            - option "VRB - Ngân hàng Liên doanh Việt - Nga"
+            - option "Woori - Ngân hàng TNHH MTV Woori Việt Nam"
+          - spinbutton "Ngày fam tự thanh toán hàng tháng" [ref=f1e34]
+          - button "Choose File" [ref=f1e35]
+        - generic [ref=f1e37]:
+          - textbox "Dán nội dung đơn hàng" [ref=f1e38]
+          - button "Xóa thành viên" [ref=f1e39] [cursor=pointer]
+        - button "Thêm thành viên" [ref=f1e40] [cursor=pointer]
+        - button "Lưu family" [ref=f1e41] [cursor=pointer]
