@@ -25,7 +25,7 @@ class FamilyController extends Controller
             sort: (string) $request->query('sort', ''),
             perPage: 20,
             page: (int) $request->query('page', 1),
-        );
+        )->withQueryString();
 
         return view('families.index', [
             'families' => $families,

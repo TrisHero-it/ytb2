@@ -197,6 +197,24 @@ class FamilyIndexTest extends TestCase
         $response->assertSee('15/03/2026');
     }
 
+    public function test_pagination_links_preserve_search_and_sort_query_params(): void
+    {
+        $user = User::factory()->create();
+        for ($i = 1; $i <= 25; $i++) {
+            Family::create([
+                'email' => "owner{$i}@example.com",
+                'number_bank' => '0123456789',
+                'name_bank' => 'Vietcombank',
+                'user' => "Family {$i}",
+            ]);
+        }
+
+        $response = $this->actingAs($user)->get('/families?sort=members_desc&page=2');
+
+        $response->assertOk();
+        $response->assertSee('sort=members_desc', false);
+    }
+
     public function test_index_page_includes_a_history_button_and_modal_for_each_family(): void
     {
         $user = User::factory()->create();

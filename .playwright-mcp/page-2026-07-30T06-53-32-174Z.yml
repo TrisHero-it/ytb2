@@ -1,0 +1,12 @@
+- generic [ref=e3]:
+  - heading "Đăng nhập" [level=1] [ref=e4]
+  - paragraph [ref=e5]: Muakey.com
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - textbox [ref=e8]
+      - generic [ref=e9]: Tài khoản
+    - generic [ref=e10]:
+      - textbox [ref=e11]
+      - generic [ref=e12]: Mật khẩu
+      - button "Hiện/ẩn mật khẩu" [ref=e13]
+    - button "Đăng nhập" [ref=e17]

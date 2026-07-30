@@ -13,7 +13,7 @@
     @stack('styles')
 </head>
 
-<body class="antialiased flex h-full text-base text-foreground bg-background demo1 kt-sidebar-fixed kt-header-fixed" style="background: ghostwhite;">
+<body class="antialiased flex h-full text-base text-foreground bg-background demo1 kt-header-fixed" style="background: ghostwhite;">
     <div id="page_loading_overlay" class="page-loading-overlay hidden" aria-hidden="true">
         <div class="page-loading-overlay__content">
             <svg class="page-loading-overlay__spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
