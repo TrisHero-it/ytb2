@@ -22,7 +22,7 @@
             <form method="POST" action="{{ route('families.store') }}" enctype="multipart/form-data">
                 @csrf
 
-                <div class="grid gap-4 mb-5">
+                <div class="grid gap-4 mb-5 sm:grid-cols-2">
                     <label>Email
                         <input type="text" name="email" value="{{ old('email') }}" placeholder="Email" class="kt-input" />
                     </label>
@@ -44,7 +44,7 @@
                     <label>Ngày fam tự thanh toán hàng tháng
                         <input type="number" min=1 max="31" name="auto_payment_day" value="{{ old('auto_payment_day') }}" class="kt-input" placeholder="Ngày fam tự thanh toán hàng tháng" />
                     </label>
-                    <label>Bill gốc
+                    <label class="sm:col-span-2">Bill gốc
                         <input type="file" name="bill_of_master[]" multiple class="kt-input" />
                     </label>
                 </div>

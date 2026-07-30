@@ -41,7 +41,7 @@
     <div class="flex grow flex-col min-h-full">
         <nav class="bg-background border-b border-border shrink-0 z-30">
             <div class="flex items-center justify-between gap-4 px-4 lg:px-6 h-14">
-                <a href="/" class="flex items-center gap-2 shrink-0">
+                <a href="{{ route('families.index') }}" class="flex items-center gap-2 shrink-0">
                     <img class="h-8 w-auto" src="{{ asset('images/logo.png') }}" alt="Muakey" style="max-height: 32px; max-width: 180px;" />
                 </a>
                 <div class="flex items-center gap-1">
@@ -89,14 +89,14 @@
     <script src="{{ asset('assets/js/layouts/demo1.js') }}"></script>
     <script src="{{ asset('assets/js/widgets/general.js') }}"></script>
     <script>
-        window.checkMemberEmailDuplicate = function (textarea, excludeFamilyId) {
+        window.checkMemberEmailDuplicate = function(textarea, excludeFamilyId) {
             var row = textarea.closest('[data-member-row]');
             var warningEl = row ? row.querySelector('[data-member-email-warning]') : null;
             if (!warningEl) {
                 return;
             }
             clearTimeout(textarea._emailCheckTimer);
-            textarea._emailCheckTimer = setTimeout(function () {
+            textarea._emailCheckTimer = setTimeout(function() {
                 var match = textarea.value.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
                 if (!match) {
                     warningEl.classList.add('hidden');
@@ -108,9 +108,15 @@
                 if (excludeFamilyId) {
                     url += '&exclude_id=' + encodeURIComponent(excludeFamilyId);
                 }
-                fetch(url, { headers: { 'Accept': 'application/json' } })
-                    .then(function (res) { return res.json(); })
-                    .then(function (data) {
+                fetch(url, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(function(res) {
+                        return res.json();
+                    })
+                    .then(function(data) {
                         if (data.exists) {
                             warningEl.textContent = 'Email ' + email + ' đã tồn tại ở family: ' + (data.family && data.family.user ? data.family.user : '');
                             warningEl.classList.remove('hidden');
@@ -119,7 +125,7 @@
                             warningEl.textContent = '';
                         }
                     })
-                    .catch(function () {});
+                    .catch(function() {});
             }, 500);
         };
     </script>

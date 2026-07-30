@@ -62,8 +62,11 @@ class FamilyListQuery
         $search = trim($search);
         if ($search !== '') {
             $term = '%'.$search.'%';
-            $query->whereHas('members', function ($q) use ($term) {
-                $q->where('order_code', 'like', $term)->orWhere('email', 'like', $term);
+            $query->where(function ($q) use ($term) {
+                $q->where('families.user', 'like', $term)
+                    ->orWhereHas('members', function ($q) use ($term) {
+                        $q->where('order_code', 'like', $term)->orWhere('email', 'like', $term);
+                    });
             });
         }
 

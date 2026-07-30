@@ -11,7 +11,7 @@
         </div>
         <div class="p-5">
             <form method="GET" action="{{ route('families.index') }}" class="flex items-center gap-2 mb-5">
-                <input type="text" name="search" value="{{ $search }}" placeholder="Tìm theo mã đơn hàng hoặc email" class="kt-input" />
+                <input type="text" name="search" value="{{ $search }}" placeholder="Tìm theo mã đơn hàng, email hoặc tên chủ family" class="kt-input" />
                 <select name="sort" class="kt-input">
                     <option value="next_payment" @selected($sort==='next_payment' || $sort==='' )>Thanh toán tiếp theo</option>
                     <option value="family_empty" @selected($sort==='family_empty' )>Sắp trống</option>
@@ -165,34 +165,46 @@
                             </div>
                         </div>
 
-                        <div id="members-modal-{{ $family->id }}" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1050;" onclick="if (event.target === this) this.style.display = 'none';">
-                            <div class="kt-card" style="width: 100%; max-width: 640px; max-height: 80vh; overflow-y: auto; background: #fff; padding: 1.25rem; border-radius: 0.5rem;">
-                                <h4 class="kt-card-title mb-3">Thành viên - {{ $family->user }}</h4>
+                        <div id="members-modal-{{ $family->id }}" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1050; padding: 16px;" onclick="if (event.target === this) this.style.display = 'none';">
+                            <div class="kt-card" style="width: 100%; max-width: 760px; max-height: 80vh; overflow-y: auto; background: #fff; padding: 1.25rem; border-radius: 0.5rem;">
+                                <div class="flex items-center justify-between mb-3" style="gap: 12px;">
+                                    <h4 class="kt-card-title" style="margin: 0;">Thành viên - {{ $family->user }}</h4>
+                                    <span style="flex-shrink: 0; background: #eff6ff; color: {{ $family->member_count >= 5 ? '#dc2626' : '#2563eb' }}; font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 9999px;">{{ $family->member_count }} / 5</span>
+                                </div>
                                 @if ($family->members->isEmpty())
-                                <p>Family chưa có thành viên nào.</p>
+                                <div style="text-align: center; padding: 32px 16px; color: #9ca3af;">
+                                    <i class="ki-filled ki-people" style="font-size: 28px; display: block; margin-bottom: 8px;"></i>
+                                    <p style="margin: 0;">Family chưa có thành viên nào.</p>
+                                </div>
                                 @else
-                                <table class="kt-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Mã đơn hàng</th>
-                                            <th>Tên sản phẩm</th>
-                                            <th>Email</th>
-                                            <th>Khu vực bạn sống</th>
-                                            <th>Ngày mua</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($family->members as $member)
-                                        <tr>
-                                            <td>{{ $member->order_code }}</td>
-                                            <td>{{ $member->product_name }}</td>
-                                            <td>{{ $member->email }}</td>
-                                            <td>{{ $member->region }}</td>
-                                            <td>{{ $member->purchase_date?->format('d/m/Y') }}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                <div class="kt-table-wrapper" style="border: 1px solid #e5e7eb; border-radius: 0.5rem;">
+                                    <table class="kt-table kt-table-highlight">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 40px;">#</th>
+                                                <th>Mã đơn hàng</th>
+                                                <th>Tên sản phẩm</th>
+                                                <th>Email</th>
+                                                <th>Khu vực bạn sống</th>
+                                                <th style="text-align: right;">Ngày mua</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($family->members as $index => $member)
+                                            <tr>
+                                                <td style="color: #9ca3af;">{{ $index + 1 }}</td>
+                                                <td>
+                                                    <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">{{ $member->order_code ?: '—' }}</span>
+                                                </td>
+                                                <td>{{ $member->product_name ?: '—' }}</td>
+                                                <td style="color: #4b5563;">{{ $member->email ?: '—' }}</td>
+                                                <td style="color: #4b5563;">{{ $member->region ?: '—' }}</td>
+                                                <td style="text-align: right; color: #6b7280; white-space: nowrap;">{{ $member->purchase_date?->format('d/m/Y') ?? '—' }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                                 @endif
                                 <div class="flex justify-end mt-3">
                                     <button type="button" class="kt-btn" onclick="document.getElementById('members-modal-{{ $family->id }}').style.display = 'none'">Đóng</button>

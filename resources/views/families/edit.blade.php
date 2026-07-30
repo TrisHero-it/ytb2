@@ -23,7 +23,7 @@
                 @csrf
                 @method('PUT')
 
-                <div class="grid gap-4 mb-5">
+                <div class="grid gap-4 mb-5 sm:grid-cols-2">
                     <label>Email chủ family
                         <input type="text" name="email" value="{{ old('email', $family->email) }}" placeholder="Email chủ family" class="kt-input" />
                     </label>
@@ -48,10 +48,10 @@
                     <label>Affiliate bởi
                         <input type="text" name="afiilicate_by" value="{{ old('afiilicate_by', $family->afiilicate_by) }}" placeholder="Affiliate bởi" class="kt-input" />
                     </label>
-                    <label>Ghi chú
+                    <label class="sm:col-span-2">Ghi chú
                         <textarea name="note" placeholder="Ghi chú" class="kt-input">{{ old('note', $family->note) }}</textarea>
                     </label>
-                    <label>Bill gốc
+                    <label class="sm:col-span-2">Bill gốc
                         <input type="file" name="bill_of_master[]" multiple class="kt-input" />
                     </label>
                 </div>

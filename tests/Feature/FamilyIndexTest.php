@@ -51,6 +51,29 @@ class FamilyIndexTest extends TestCase
         $response->assertSee('Matched Family');
     }
 
+    public function test_search_query_param_filters_results_by_owner_name(): void
+    {
+        $user = User::factory()->create();
+        Family::create([
+            'email' => 'owner@example.com',
+            'number_bank' => '0123456789',
+            'name_bank' => 'Vietcombank',
+            'user' => 'Nguyen Van A',
+        ]);
+        Family::create([
+            'email' => 'other@example.com',
+            'number_bank' => '0123456789',
+            'name_bank' => 'Vietcombank',
+            'user' => 'Tran Thi B',
+        ]);
+
+        $response = $this->actingAs($user)->get('/families?search=Nguyen Van A');
+
+        $response->assertOk();
+        $response->assertSee('Nguyen Van A');
+        $response->assertDontSee('Tran Thi B');
+    }
+
     public function test_index_page_includes_a_quick_pay_form_for_each_family(): void
     {
         $user = User::factory()->create();

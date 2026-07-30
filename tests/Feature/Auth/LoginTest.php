@@ -30,7 +30,7 @@ class LoginTest extends TestCase
             'password' => 'Muakey@@111',
         ]);
 
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/families');
         $this->assertAuthenticated();
     }
 

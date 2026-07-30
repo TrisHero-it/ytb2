@@ -97,7 +97,7 @@ class FamilyController extends Controller
         $diffs = FamilyMemberReconciler::reconcile($family, $rows);
         FamilyHistoryLogger::logDiffs($family->id, $diffs);
 
-        return redirect()->route('families.index')->with('success', 'Cập nhật family thành công!');
+        return redirect()->back()->with('success', 'Cập nhật family thành công!');
     }
 
     public function destroy(Family $family): RedirectResponse
