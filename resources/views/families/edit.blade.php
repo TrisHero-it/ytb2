@@ -43,7 +43,7 @@
                         <input type="number" min="1" max="31" name="auto_payment_day" value="{{ old('auto_payment_day', $family->auto_payment_day) }}" class="kt-input" placeholder="Ngày fam tự thanh toán hàng tháng" />
                     </label>
                     <label>Số tiền/tháng
-                        <input type="number" name="monthly_payment" value="{{ old('monthly_payment', $family->monthly_payment) }}" min="0" placeholder="Số tiền/tháng" class="kt-input" />
+                        <input type="number" name="monthly_payment" value="{{ old('monthly_payment', $family->monthly_payment) }}" placeholder="Số tiền/tháng" class="kt-input" />
                     </label>
                     <label>Affiliate bởi
                         <input type="text" name="afiilicate_by" value="{{ old('afiilicate_by', $family->afiilicate_by) }}" placeholder="Affiliate bởi" class="kt-input" />

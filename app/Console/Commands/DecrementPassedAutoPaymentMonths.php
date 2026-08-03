@@ -9,7 +9,7 @@ class DecrementPassedAutoPaymentMonths extends Command
 {
     protected $signature = 'families:decrement-passed-auto-payment-months';
 
-    protected $description = 'Consume one month of prepaid credit (monthly_payment) for families whose auto_payment_day occurs today.';
+    protected $description = 'Decrement monthly_payment by one for families whose auto_payment_day occurs today, going negative once prepaid credit runs out to mark them overdue.';
 
     public function handle(): int
     {
@@ -17,7 +17,6 @@ class DecrementPassedAutoPaymentMonths extends Command
 
         Family::query()
             ->whereNotNull('auto_payment_day')
-            ->where('monthly_payment', '>', 0)
             ->get()
             ->each(function (Family $family) use ($today) {
                 $dueDayThisMonth = min($family->auto_payment_day, $today->daysInMonth);

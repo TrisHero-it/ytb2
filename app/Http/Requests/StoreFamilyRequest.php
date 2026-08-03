@@ -25,7 +25,7 @@ class StoreFamilyRequest extends FormRequest
             'number_phone' => ['nullable', 'string'],
             'afiilicate_by' => ['nullable', 'string'],
             'note' => ['nullable', 'string'],
-            'monthly_payment' => ['nullable', 'integer', 'min:0'],
+            'monthly_payment' => ['nullable', 'integer'],
             'auto_payment_day' => ['nullable', 'integer', 'min:1', 'max:31'],
             'member_texts' => ['array'],
             'member_texts.*' => ['nullable', 'string'],

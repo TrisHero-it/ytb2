@@ -3,6 +3,16 @@
 @section('title', 'Danh sách family')
 
 @section('content')
+@if (session('success'))
+<div class="alert alert-success">
+    {{ session('success') }}
+</div>
+@endif
+@if (session('error'))
+<div class="alert alert-error">
+    {{ session('error') }}
+</div>
+@endif
 <div class="lg:col-span-3">
     <div class="kt-card kt-card-grid h-full min-w-full">
         <div class="kt-card-header flex items-center justify-between gap-4">
@@ -81,12 +91,6 @@
                                 <div style="color: #6b7280;">Số điện thoại</div>
                                 <div style="font-weight: 500;">{{ $family->number_phone ?: '—' }}</div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; gap: 12px;">
-                                <div>
-                                    <div style="color: #6b7280;">Số thành viên</div>
-                                    <div style="font-weight: 700; color: {{ $family->member_count >= 5 ? '#dc2626' : '#111827' }};">{{ $family->member_count }} / 5</div>
-                                </div>
-                            </div>
                             <div>
                                 <div style="color: #6b7280;">Ngày thanh toán gần nhất</div>
                                 <div style="font-weight: 500;">{{ $paymentAt ?? '—' }}</div>
@@ -127,7 +131,7 @@
 
                         <hr style="border-color: #e5e7eb; margin: 12px 0;">
                         <div class="flex items-center justify-between" style="font-size: 13px;">
-                            <span>Thành viên: {{ $family->member_count }}</span>
+                            <span >Thành viên: {{ $family->member_count }}</span>
                             <div class="flex items-center gap-3">
                                 <button type="button" onclick="showFamilyHistory({{ $family->id }})" style="background: none; border: none; padding: 0; color: #3b82f6; cursor: pointer;">Lịch sử</button>
                                 <button type="button" onclick="document.getElementById('members-modal-{{ $family->id }}').style.display = 'flex'" style="background: none; border: none; padding: 0; color: #3b82f6; cursor: pointer;">Xem thêm</button>
@@ -187,10 +191,20 @@
                                                 <th>Email</th>
                                                 <th>Khu vực bạn sống</th>
                                                 <th style="text-align: right;">Ngày mua</th>
+                                                <th style="text-align: right;">Ngày hết hạn</th>
+                                                <th style="text-align: right;">Còn lại</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($family->members as $index => $member)
+                                            @php
+                                                $memberExpireDate = $member->purchase_date
+                                                    ? $member->purchase_date->copy()->addMonths(str_contains((string) $member->product_name, '6') ? 6 : 12)
+                                                    : null;
+                                                $memberExpireDays = $memberExpireDate
+                                                    ? now()->startOfDay()->diffInDays($memberExpireDate->copy()->startOfDay(), false)
+                                                    : null;
+                                            @endphp
                                             <tr>
                                                 <td style="color: #9ca3af;">{{ $index + 1 }}</td>
                                                 <td>
@@ -200,6 +214,14 @@
                                                 <td style="color: #4b5563;">{{ $member->email ?: '—' }}</td>
                                                 <td style="color: #4b5563;">{{ $member->region ?: '—' }}</td>
                                                 <td style="text-align: right; color: #6b7280; white-space: nowrap;">{{ $member->purchase_date?->format('d/m/Y') ?? '—' }}</td>
+                                                <td style="text-align: right; white-space: nowrap; color: {{ $dayColor($memberExpireDays) }};">{{ $memberExpireDate?->format('d/m/Y') ?? '—' }}</td>
+                                                <td style="text-align: right; white-space: nowrap; font-weight: 600; color: {{ $dayColor($memberExpireDays) }};">
+                                                    @if ($memberExpireDays === null)
+                                                        —
+                                                    @else
+                                                        {{ $memberExpireDays < 0 ? 'Đã quá hạn' : abs($memberExpireDays) . ' ngày' }}
+                                                    @endif
+                                                </td>
                                             </tr>
                                             @endforeach
                                         </tbody>

@@ -36,26 +36,13 @@ class FamilyListQuery
             ->selectRaw('COALESCE(member_aggregates.member_count, 0) as member_count')
             ->selectRaw("CASE
                 WHEN families.auto_payment_day IS NULL THEN '9999-12-31'
-                WHEN COALESCE(families.monthly_payment, 0) = 0 THEN
-                    DATE_ADD(
-                        DATE_FORMAT(
-                            IF(DAY(CURDATE()) <= families.auto_payment_day, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH)),
-                            '%Y-%m-01'
-                        ),
-                        INTERVAL (
-                            LEAST(
-                                families.auto_payment_day,
-                                DAY(LAST_DAY(IF(DAY(CURDATE()) <= families.auto_payment_day, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH))))
-                            ) - 1
-                        ) DAY
-                    )
                 ELSE
                     DATE_ADD(
                         DATE_ADD(
                             DATE_FORMAT(CURDATE(), '%Y-%m-01'),
                             INTERVAL (LEAST(families.auto_payment_day, DAY(LAST_DAY(CURDATE()))) - 1) DAY
                         ),
-                        INTERVAL families.monthly_payment MONTH
+                        INTERVAL COALESCE(families.monthly_payment, 0) MONTH
                     )
             END as next_payment_date");
 

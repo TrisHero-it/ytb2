@@ -40,14 +40,14 @@ class DecrementPassedAutoPaymentMonthsTest extends TestCase
         $this->assertSame(4, $family->refresh()->monthly_payment);
     }
 
-    public function test_does_not_decrement_below_zero(): void
+    public function test_decrements_below_zero_to_mark_family_overdue(): void
     {
         $this->travelTo(now()->startOfMonth()->addDays(9));
         $family = $this->makeFamily(['auto_payment_day' => 10, 'monthly_payment' => 0]);
 
         $this->artisan('families:decrement-passed-auto-payment-months')->assertSuccessful();
 
-        $this->assertSame(0, $family->refresh()->monthly_payment);
+        $this->assertSame(-1, $family->refresh()->monthly_payment);
     }
 
     public function test_ignores_families_without_auto_payment_day(): void
