@@ -162,4 +162,29 @@ class FamilyController extends Controller
             History::where('family_id', $family->id)->orderByDesc('id')->get()
         );
     }
+
+    public function historySearch(Request $request): JsonResponse
+    {
+        $search = trim((string) $request->query('q', ''));
+
+        if ($search === '') {
+            return response()->json([]);
+        }
+
+        $term = '%'.$search.'%';
+
+        $items = History::query()
+            ->join('families', 'families.id', '=', 'history_joining_family.family_id')
+            ->where(function ($query) use ($term) {
+                $query->where('history_joining_family.order_id', 'like', $term)
+                    ->orWhere('history_joining_family.email', 'like', $term)
+                    ->orWhere('history_joining_family.name_product', 'like', $term)
+                    ->orWhere('families.user', 'like', $term);
+            })
+            ->orderByDesc('history_joining_family.id')
+            ->limit(100)
+            ->get(['history_joining_family.*', 'families.user as family_user']);
+
+        return response()->json($items);
+    }
 }

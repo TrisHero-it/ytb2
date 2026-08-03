@@ -53,7 +53,15 @@
                     </label>
                     <label class="sm:col-span-2">Bill gốc
                         <input type="file" name="bill_of_master[]" multiple class="kt-input" />
+                        @include('families.partials.bill-gallery', ['json' => $family->bill_of_master])
                     </label>
+                    <div class="sm:col-span-2">
+                        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">Bill thanh toán</div>
+                        @include('families.partials.bill-gallery', ['json' => $family->bill_payment])
+                        @if (! $family->bill_payment)
+                            <p style="color: #9ca3af; font-size: 13px;">Chưa có bill thanh toán.</p>
+                        @endif
+                    </div>
                 </div>
 
                 <div id="member-rows">
@@ -77,4 +85,26 @@
         </div>
     </div>
 </div>
+
+<div id="bill-lightbox" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 2000; padding: 24px;" onclick="if (event.target === this) closeBillLightbox();">
+    <img id="bill-lightbox-image" src="" alt="Bill" style="max-width: 100%; max-height: 100%; border-radius: 0.5rem;" />
+    <button type="button" onclick="closeBillLightbox()" style="position: fixed; top: 16px; right: 24px; background: none; border: none; color: #fff; font-size: 32px; line-height: 1; cursor: pointer;">&times;</button>
+</div>
+
+@push('scripts')
+<script>
+    function openBillLightbox(src) {
+        var lightbox = document.getElementById('bill-lightbox');
+        var image = document.getElementById('bill-lightbox-image');
+        if (!lightbox || !image) return;
+        image.src = src;
+        lightbox.style.display = 'flex';
+    }
+
+    function closeBillLightbox() {
+        var lightbox = document.getElementById('bill-lightbox');
+        if (lightbox) lightbox.style.display = 'none';
+    }
+</script>
+@endpush
 @endsection

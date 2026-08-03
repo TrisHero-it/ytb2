@@ -76,6 +76,24 @@
             <main class="grow" id="content" role="content">
                 <div class="kt-container-fixed" style="margin: 0 auto; width: 100%; max-width: unset;">
                     <div class="grid gap-5 lg:gap-7.5" style="width: 100%;">
+                        @if (session('success'))
+                            <div role="alert" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; color: #15803d;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="ki-filled ki-check-circle" style="font-size: 18px;"></i>
+                                    <span style="font-weight: 500;">{{ session('success') }}</span>
+                                </div>
+                                <button type="button" onclick="this.closest('[role=alert]').remove()" style="background: none; border: none; color: #15803d; cursor: pointer; font-size: 18px; line-height: 1; padding: 0;">&times;</button>
+                            </div>
+                        @endif
+                        @if (session('error'))
+                            <div role="alert" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 0.5rem; color: #b91c1c;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="ki-filled ki-information-2" style="font-size: 18px;"></i>
+                                    <span style="font-weight: 500;">{{ session('error') }}</span>
+                                </div>
+                                <button type="button" onclick="this.closest('[role=alert]').remove()" style="background: none; border: none; color: #b91c1c; cursor: pointer; font-size: 18px; line-height: 1; padding: 0;">&times;</button>
+                            </div>
+                        @endif
                         @yield('content')
                     </div>
                 </div>

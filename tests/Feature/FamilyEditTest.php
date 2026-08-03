@@ -55,6 +55,35 @@ class FamilyEditTest extends TestCase
         $response->assertSee('2026-04-10', false);
     }
 
+    public function test_edit_form_shows_all_bill_images(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily();
+        $family->bill_of_master = json_encode(['master1.jpg', 'master2.png', 'master3.jpg']);
+        $family->bill_payment = json_encode(['pay1.jpg', 'pay2.jpg']);
+        $family->save();
+
+        $response = $this->actingAs($user)->get("/families/{$family->id}/edit");
+
+        $response->assertOk();
+        $response->assertSee('storage/bills/master1.jpg', false);
+        $response->assertSee('storage/bills/master2.png', false);
+        $response->assertSee('storage/bills/master3.jpg', false);
+        $response->assertSee('storage/bills/pay1.jpg', false);
+        $response->assertSee('storage/bills/pay2.jpg', false);
+    }
+
+    public function test_edit_form_shows_placeholder_when_no_payment_bill(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily();
+
+        $response = $this->actingAs($user)->get("/families/{$family->id}/edit");
+
+        $response->assertOk();
+        $response->assertSee('Chưa có bill thanh toán.');
+    }
+
     public function test_edit_form_wires_member_email_duplicate_check_with_exclude_id(): void
     {
         $user = User::factory()->create();

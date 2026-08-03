@@ -53,6 +53,20 @@ class MemberTextParserTest extends TestCase
         $this->assertSame($input, $result['raw_text']);
     }
 
+    public function test_parses_text_format_without_region_line(): void
+    {
+        $input = "Mã đơn hàng: 602624\nTên sản phẩm: Nâng Cấp Youtube Premium & YouTube Music 12 Tháng x 1\nEmail: nguyenhoangbang55@gmail.com\nNgày mua: 20:47:06 08/08/2025";
+
+        $result = MemberTextParser::parse($input);
+
+        $this->assertSame('602624', $result['order_code']);
+        $this->assertSame('Nâng Cấp Youtube Premium & YouTube Music 12 Tháng x 1', $result['product_name']);
+        $this->assertSame('nguyenhoangbang55@gmail.com', $result['email']);
+        $this->assertNull($result['region']);
+        $this->assertSame('2025-08-08', $result['purchase_date']);
+        $this->assertSame($input, $result['raw_text']);
+    }
+
     public function test_falls_back_to_raw_text_when_unparseable(): void
     {
         $result = MemberTextParser::parse('just some random pasted note');

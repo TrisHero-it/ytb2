@@ -23,5 +23,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('families', FamilyController::class)->except(['show']);
     Route::post('/families/{family}/quick-pay', [FamilyController::class, 'quickPay'])->name('families.quick-pay');
     Route::get('/api/families/check-member-email', [FamilyController::class, 'checkMemberEmail'])->name('families.check-member-email');
+    Route::get('/api/history/search', [FamilyController::class, 'historySearch'])->name('history.search');
     Route::resource('collaborators', CollaboratorController::class)->except(['show']);
 });

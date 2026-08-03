@@ -5,11 +5,18 @@ namespace Tests\Feature;
 use App\Models\Family;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class FamilyQuickPayTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Storage::fake('public');
+    }
 
     private function makeFamily(array $overrides = []): Family
     {
@@ -65,5 +72,24 @@ class FamilyQuickPayTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('monthly_payment');
+    }
+
+    public function test_quick_pay_stores_pasted_bill_image(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily();
+        $pixelPng = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
+        $dataUrl = 'data:image/png;base64,'.base64_encode($pixelPng);
+
+        $response = $this->actingAs($user)->post("/families/{$family->id}/quick-pay", [
+            'bill_payment_paste' => $dataUrl,
+        ]);
+
+        $response->assertRedirect('/families');
+        $family->refresh();
+        $this->assertNotNull($family->bill_payment);
+        $stored = json_decode($family->bill_payment, true);
+        $this->assertCount(1, $stored);
+        Storage::disk('public')->assertExists('bills/'.$stored[0]);
     }
 }

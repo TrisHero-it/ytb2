@@ -6,7 +6,7 @@ use Carbon\Carbon;
 
 class MemberTextParser
 {
-    private const PATTERN = '/(?:Mã đơn hàng|Mã ĐH):\s*(.*?)\s*(?:Tên sản phẩm|Sản phẩm):\s*(.*?)\s*Email:\s*(.*?)\s*Khu vực bạn sống:\s*(.*?)\s*Ngày mua:\s*(.*)$/ui';
+    private const PATTERN = '/(?:Mã đơn hàng|Mã ĐH):\s*(.*?)\s*(?:Tên sản phẩm|Sản phẩm):\s*(.*?)\s*Email:\s*(.*?)\s*(?:Khu vực bạn sống:\s*(.*?)\s*)?Ngày mua:\s*(.*)$/ui';
 
     private const DATE_FORMATS = ['H:i:s d/m/Y', 'd/m/Y H:i:s', 'd/m/Y'];
 
@@ -46,7 +46,7 @@ class MemberTextParser
                 'order_code' => trim($matches[1]) ?: null,
                 'product_name' => trim($matches[2]) ?: null,
                 'email' => trim($matches[3]) !== '' ? strtolower(trim($matches[3])) : null,
-                'region' => trim($matches[4]) ?: null,
+                'region' => trim($matches[4] ?? '') ?: null,
                 'purchase_date' => self::normalizeDate(trim($matches[5])),
                 'raw_text' => $input,
             ];
