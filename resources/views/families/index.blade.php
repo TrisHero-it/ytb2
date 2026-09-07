@@ -98,7 +98,7 @@
                             <div style="display: flex; justify-content: space-between; gap: 12px;">
                                 <div>
                                     <div style="color: #6b7280;">Hạn thanh toán youtube</div>
-                                    <div style="font-weight: 600; color: {{ $dayColor($nextPaymentDays) }};">{{ $nextPaymentDate ?? 'Chưa đặt ngày tự thanh toán' }}</div>
+                                    <div style="font-weight: 600; color: {{ $dayColor($nextPaymentDays) }};">{{ $nextPaymentDate ?? 'Chưa đặt ngày đến hạn' }}</div>
                                 </div>
                                 @if ($nextPaymentDays !== null)
                                 <div style="text-align: right;">
@@ -150,7 +150,7 @@
                                     @csrf
                                     <div class="grid gap-3 mb-3">
                                         <label>Số tháng thanh toán
-                                            <input type="number" name="monthly_payment" min="0" value="1" class="kt-input w-full" />
+                                            <input type="number" name="months" min="0" value="1" class="kt-input w-full" />
                                         </label>
                                         <label>Bill thanh toán (tuỳ chọn)
                                             <input type="file" name="bill_payment[]" multiple class="kt-input w-full" />

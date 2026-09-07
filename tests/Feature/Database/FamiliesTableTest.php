@@ -15,7 +15,7 @@ class FamiliesTableTest extends TestCase
     {
         $this->assertTrue(Schema::hasTable('families'));
         $this->assertTrue(Schema::hasColumns('families', [
-            'id', 'payment_at', 'email', 'number_phone', 'number_bank',
+            'id', 'payment_at', 'next_payment_at', 'email', 'number_phone', 'number_bank',
             'name_bank', 'user', 'monthly_payment', 'auto_payment_day',
             'afiilicate_by', 'bill_of_master', 'bill_payment', 'note',
         ]));

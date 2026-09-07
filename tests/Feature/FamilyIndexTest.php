@@ -88,7 +88,7 @@ class FamilyIndexTest extends TestCase
 
         $response->assertOk();
         $response->assertSee(route('families.quick-pay', $family), false);
-        $response->assertSee('name="monthly_payment"', false);
+        $response->assertSee('name="months"', false);
     }
 
     public function test_index_page_shows_days_until_family_empty_column(): void
@@ -176,21 +176,20 @@ class FamilyIndexTest extends TestCase
             'number_bank' => '0123456789',
             'name_bank' => 'Vietcombank',
             'user' => 'Nguyen Van A',
-            'auto_payment_day' => 1,
-            'monthly_payment' => 100000,
+            'next_payment_at' => now()->addDays(10)->toDateString(),
         ]);
         Family::create([
-            'email' => 'no-auto-pay@example.com',
+            'email' => 'no-due-date@example.com',
             'number_bank' => '0123456789',
             'name_bank' => 'Vietcombank',
-            'user' => 'No Auto Pay',
+            'user' => 'No Due Date',
         ]);
 
         $response = $this->actingAs($user)->get('/families');
 
         $response->assertOk();
         $response->assertSee('Hạn thanh toán youtube');
-        $response->assertSee('Chưa đặt ngày tự thanh toán');
+        $response->assertSee('Chưa đặt ngày đến hạn');
         $this->assertMatchesRegularExpression('/\d+ ngày/', $response->getContent());
     }
 

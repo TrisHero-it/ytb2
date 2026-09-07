@@ -38,40 +38,53 @@ class FamilyQuickPayTest extends TestCase
         $this->assertSame(now()->toDateString(), $family->payment_at->toDateString());
     }
 
-    public function test_quick_pay_adds_to_existing_monthly_payment_when_provided(): void
+    public function test_quick_pay_pushes_next_payment_at_forward_by_the_paid_months(): void
     {
         $user = User::factory()->create();
-        $family = $this->makeFamily(['monthly_payment' => 1]);
+        $family = $this->makeFamily(['next_payment_at' => '2026-10-04']);
 
         $this->actingAs($user)->post("/families/{$family->id}/quick-pay", [
-            'monthly_payment' => 3,
+            'months' => 3,
         ]);
 
         $family->refresh();
-        $this->assertSame(4, $family->monthly_payment);
+        $this->assertSame('2027-01-04', $family->next_payment_at->toDateString());
     }
 
-    public function test_quick_pay_keeps_existing_monthly_payment_when_not_provided(): void
+    public function test_quick_pay_counts_from_today_when_next_payment_at_is_not_set(): void
     {
         $user = User::factory()->create();
-        $family = $this->makeFamily(['monthly_payment' => 100000]);
+        $family = $this->makeFamily();
+
+        $this->actingAs($user)->post("/families/{$family->id}/quick-pay", [
+            'months' => 1,
+        ]);
+
+        $family->refresh();
+        $this->assertSame(now()->addMonth()->toDateString(), $family->next_payment_at->toDateString());
+    }
+
+    public function test_quick_pay_keeps_next_payment_at_when_no_months_are_paid(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily(['next_payment_at' => '2026-10-04']);
 
         $this->actingAs($user)->post("/families/{$family->id}/quick-pay", []);
 
         $family->refresh();
-        $this->assertSame(100000, $family->monthly_payment);
+        $this->assertSame('2026-10-04', $family->next_payment_at->toDateString());
     }
 
-    public function test_quick_pay_rejects_negative_monthly_payment(): void
+    public function test_quick_pay_rejects_negative_months(): void
     {
         $user = User::factory()->create();
         $family = $this->makeFamily();
 
         $response = $this->actingAs($user)->post("/families/{$family->id}/quick-pay", [
-            'monthly_payment' => -1,
+            'months' => -1,
         ]);
 
-        $response->assertSessionHasErrors('monthly_payment');
+        $response->assertSessionHasErrors('months');
     }
 
     public function test_quick_pay_stores_pasted_bill_image(): void

@@ -68,15 +68,14 @@ class FamilyController extends Controller
     {
         $family->fill($request->safe()->only([
             'payment_at',
+            'next_payment_at',
             'email',
             'number_phone',
             'number_bank',
             'name_bank',
             'user',
-            'monthly_payment',
             'afiilicate_by',
             'note',
-            'auto_payment_day',
         ]));
 
         $family->bill_of_master = $billUploads->store($request->file('bill_of_master') ?? [], null, $family->bill_of_master);
@@ -110,7 +109,7 @@ class FamilyController extends Controller
     public function quickPay(Request $request, Family $family, BillUploadService $billUploads): RedirectResponse
     {
         $data = $request->validate([
-            'monthly_payment' => ['nullable', 'integer', 'min:0'],
+            'months' => ['nullable', 'integer', 'min:0'],
             'bill_payment_paste' => ['nullable', 'string'],
         ]);
 
@@ -121,7 +120,7 @@ class FamilyController extends Controller
         );
 
         $family->payment_at = now()->toDateString();
-        $family->monthly_payment = ($family->monthly_payment ?? 0) + ($data['monthly_payment'] ?? 0);
+        $family->next_payment_at = ($family->next_payment_at ?? now())->copy()->addMonths((int) ($data['months'] ?? 0));
         $family->save();
 
         return redirect()->route('families.index')->with('success', "Đã cập nhật thanh toán cho chủ farm: {$family->user}.");

@@ -41,8 +41,8 @@
                     <label>Ngân hàng
                         @include('families.partials.bank-select', ['currentBank' => old('name_bank')])
                     </label>
-                    <label>Ngày fam tự thanh toán hàng tháng
-                        <input type="number" min=1 max="31" name="auto_payment_day" value="{{ old('auto_payment_day') }}" class="kt-input" placeholder="Ngày fam tự thanh toán hàng tháng" />
+                    <label>Ngày đến hạn thanh toán
+                        <input type="date" name="next_payment_at" value="{{ old('next_payment_at') }}" class="kt-input" />
                     </label>
                     <label class="sm:col-span-2">Bill gốc
                         <input type="file" name="bill_of_master[]" multiple class="kt-input" />

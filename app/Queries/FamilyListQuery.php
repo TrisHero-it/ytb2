@@ -34,17 +34,7 @@ class FamilyListQuery
             ->selectRaw('families.*')
             ->selectRaw("COALESCE(member_aggregates.family_empty_date, '9999-12-31') as family_empty_date")
             ->selectRaw('COALESCE(member_aggregates.member_count, 0) as member_count')
-            ->selectRaw("CASE
-                WHEN families.auto_payment_day IS NULL THEN '9999-12-31'
-                ELSE
-                    DATE_ADD(
-                        DATE_ADD(
-                            DATE_FORMAT(CURDATE(), '%Y-%m-01'),
-                            INTERVAL (LEAST(families.auto_payment_day, DAY(LAST_DAY(CURDATE()))) - 1) DAY
-                        ),
-                        INTERVAL COALESCE(families.monthly_payment, 0) MONTH
-                    )
-            END as next_payment_date");
+            ->selectRaw("COALESCE(families.next_payment_at, '9999-12-31') as next_payment_date");
 
         $search = trim($search);
         if ($search !== '') {

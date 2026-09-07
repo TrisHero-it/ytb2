@@ -8,17 +8,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'payment_at',
+    'next_payment_at',
     'email',
     'number_phone',
     'number_bank',
     'name_bank',
     'user',
-    'monthly_payment',
     'afiilicate_by',
     'bill_payment',
     'bill_of_master',
     'note',
-    'auto_payment_day'
 ])]
 class Family extends Model
 {
@@ -30,6 +29,7 @@ class Family extends Model
     {
         return [
             'payment_at' => 'date',
+            'next_payment_at' => 'date',
         ];
     }
 

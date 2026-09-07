@@ -45,16 +45,14 @@ class FamilyUpdateTest extends TestCase
     {
         $user = User::factory()->create();
         $family = $this->makeFamily();
-        $family->auto_payment_day = 10;
-        $family->monthly_payment = 2;
+        $family->next_payment_at = '2026-10-04';
         $family->save();
 
         $beforeNextPayment = (new FamilyListQuery())->paginate()->items()[0]->next_payment_date;
 
         $this->actingAs($user)->put("/families/{$family->id}", $this->validPayload($family, [
             'payment_at' => '2026-05-01',
-            'auto_payment_day' => 10,
-            'monthly_payment' => 2,
+            'next_payment_at' => '2026-10-04',
         ]));
 
         $this->assertDatabaseHas('families', ['id' => $family->id, 'payment_at' => '2026-05-01']);

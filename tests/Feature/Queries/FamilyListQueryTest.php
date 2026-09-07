@@ -79,16 +79,36 @@ class FamilyListQueryTest extends TestCase
         $this->assertSame($soonFamily->id, $result->items()[0]->id);
     }
 
-    public function test_next_payment_date_adds_only_one_month_when_monthly_payment_is_one_and_auto_pay_day_already_passed(): void
+    public function test_next_payment_date_comes_from_the_next_payment_at_column(): void
     {
-        // Freeze "today" to the 20th of the month, so auto_payment_day=10 has already passed this cycle.
-        $this->travelTo(now()->startOfMonth()->addDays(19));
-        $family = $this->makeFamily(['auto_payment_day' => 10, 'monthly_payment' => 1]);
+        $this->makeFamily(['next_payment_at' => '2026-10-04']);
 
         $result = (new FamilyListQuery)->paginate();
 
-        $expected = now()->startOfMonth()->addDays(9)->addMonth()->toDateString();
-        $this->assertSame($expected, substr($result->items()[0]->next_payment_date, 0, 10));
+        $this->assertSame('2026-10-04', substr($result->items()[0]->next_payment_date, 0, 10));
+    }
+
+    public function test_next_payment_date_defaults_to_far_future_when_not_set(): void
+    {
+        $this->makeFamily();
+
+        $result = (new FamilyListQuery)->paginate();
+
+        $this->assertSame('9999-12-31', substr($result->items()[0]->next_payment_date, 0, 10));
+    }
+
+    public function test_sort_next_payment_orders_by_due_date_with_unset_families_last(): void
+    {
+        $unset = $this->makeFamily(['email' => 'unset@example.com']);
+        $later = $this->makeFamily(['email' => 'later@example.com', 'next_payment_at' => '2026-12-01']);
+        $sooner = $this->makeFamily(['email' => 'sooner@example.com', 'next_payment_at' => '2026-10-04']);
+
+        $result = (new FamilyListQuery)->paginate(sort: FamilyListQuery::SORT_NEXT_PAYMENT);
+
+        $this->assertSame(
+            [$sooner->id, $later->id, $unset->id],
+            array_map(fn ($family) => $family->id, $result->items()),
+        );
     }
 
     public function test_sort_members_desc_orders_by_member_count_descending(): void
