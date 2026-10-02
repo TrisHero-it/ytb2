@@ -10,6 +10,52 @@
     <link href="{{ asset('assets/vendors/apexcharts/apexcharts.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/vendors/keenicons/styles.bundle.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/css/styles.css') }}" rel="stylesheet" />
+    <style>
+        .page-loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.75);
+        }
+
+        .page-loading-overlay.hidden {
+            display: none;
+        }
+
+        .page-loading-overlay__content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 28px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-loading-overlay__spinner {
+            width: 32px;
+            height: 32px;
+            animation: page-loading-spin 1s linear infinite;
+        }
+
+        .page-loading-overlay__text {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        @keyframes page-loading-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
     @stack('styles')
 </head>
 
@@ -113,6 +159,58 @@
     <script src="{{ asset('assets/js/layouts/demo1.js') }}"></script>
     <script src="{{ asset('assets/js/widgets/general.js') }}"></script>
     <script>
+        // Chặn gửi trùng: bấm hai lần vào nút lưu từng làm form chạy hai lần,
+        // ví dụ thanh toán 1 tháng nhưng hạn lại cộng thành 2 tháng.
+        (function() {
+            var overlay = document.getElementById('page_loading_overlay');
+            var overlayText = document.getElementById('page_loading_text');
+
+            function showPageLoading(message) {
+                if (!overlay) return;
+                if (overlayText && message) overlayText.textContent = message;
+                overlay.classList.remove('hidden');
+            }
+
+            function hidePageLoading() {
+                if (overlay) overlay.classList.add('hidden');
+            }
+
+            document.addEventListener('submit', function(event) {
+                var form = event.target;
+
+                // Form dùng JS riêng (ví dụ tìm kiếm lịch sử) không điều hướng trang.
+                if (event.defaultPrevented || form.hasAttribute('data-no-loading')) {
+                    return;
+                }
+
+                if (form.dataset.submitting === '1') {
+                    event.preventDefault();
+                    return;
+                }
+
+                form.dataset.submitting = '1';
+                showPageLoading(form.getAttribute('data-loading-text'));
+
+                // Hoãn một nhịp để trình duyệt kịp gửi giá trị của nút vừa bấm.
+                setTimeout(function() {
+                    form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function(button) {
+                        button.disabled = true;
+                    });
+                }, 0);
+            });
+
+            // Quay lại bằng nút Back thì trang lấy từ cache, phải mở khoá lại form.
+            window.addEventListener('pageshow', function() {
+                hidePageLoading();
+                document.querySelectorAll('form[data-submitting="1"]').forEach(function(form) {
+                    delete form.dataset.submitting;
+                    form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function(button) {
+                        button.disabled = false;
+                    });
+                });
+            });
+        })();
+
         window.checkMemberEmailDuplicate = function(textarea, excludeFamilyId) {
             var container = textarea.closest('[data-member-editor], [data-member-row]');
             var warningEl = container ? container.querySelector('[data-member-email-warning]') : null;

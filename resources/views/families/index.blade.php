@@ -146,7 +146,7 @@
                                 </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('families.quick-pay', $family) }}" enctype="multipart/form-data">
+                                <form method="POST" action="{{ route('families.quick-pay', $family) }}" enctype="multipart/form-data" data-loading-text="Đang ghi nhận thanh toán...">
                                     @csrf
                                     <div class="grid gap-3 mb-3">
                                         <label>Số tháng thanh toán
@@ -266,7 +266,7 @@
 <div id="history-search-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1050; padding: 16px;" onclick="if (event.target === this) this.style.display = 'none';">
     <div class="kt-card" style="width: 100%; max-width: 640px; max-height: 80vh; overflow-y: auto; background: #fff; padding: 1.25rem; border-radius: 0.5rem;">
         <h4 class="kt-card-title mb-3">Tìm kiếm lịch sử thêm / sửa / xoá</h4>
-        <form onsubmit="searchHistory(event)" class="flex items-center gap-2 mb-3">
+        <form onsubmit="searchHistory(event)" data-no-loading class="flex items-center gap-2 mb-3">
             <input type="text" id="history-search-input" placeholder="Mã đơn hàng, email, tên sản phẩm, tên chủ family hoặc người thực hiện" class="kt-input w-full" />
             <button type="submit" class="kt-btn kt-btn-primary">Tìm</button>
         </form>
