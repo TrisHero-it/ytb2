@@ -63,6 +63,12 @@
                         Thêm form hướng dẫn
                     </a>
                     <span class="w-px h-5 bg-border mx-1" aria-hidden="true"></span>
+                    @auth
+                        <span class="items-center gap-2 px-3 py-2 text-sm font-semibold text-foreground">
+                            <i class="ki-filled ki-user text-lg"></i>
+                            {{ auth()->user()->name }}
+                        </span>
+                    @endauth
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="kt-menu-link border border-transparent items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-foreground hover:bg-accent/60 hover:text-primary">

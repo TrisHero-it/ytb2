@@ -267,7 +267,7 @@
     <div class="kt-card" style="width: 100%; max-width: 640px; max-height: 80vh; overflow-y: auto; background: #fff; padding: 1.25rem; border-radius: 0.5rem;">
         <h4 class="kt-card-title mb-3">Tìm kiếm lịch sử thêm / sửa / xoá</h4>
         <form onsubmit="searchHistory(event)" class="flex items-center gap-2 mb-3">
-            <input type="text" id="history-search-input" placeholder="Mã đơn hàng, email, tên sản phẩm hoặc tên chủ family" class="kt-input w-full" />
+            <input type="text" id="history-search-input" placeholder="Mã đơn hàng, email, tên sản phẩm, tên chủ family hoặc người thực hiện" class="kt-input w-full" />
             <button type="submit" class="kt-btn kt-btn-primary">Tìm</button>
         </form>
         <div id="history-search-results" class="grid gap-2 mb-3">
@@ -391,7 +391,34 @@
             badgeBg: '#fee2e2',
             badgeColor: '#b91c1c'
         },
+        payment: {
+            label: 'Thanh toán',
+            dot: '#10b981',
+            badgeBg: '#d1fae5',
+            badgeColor: '#047857'
+        },
+        family: {
+            label: 'Sửa family',
+            dot: '#8b5cf6',
+            badgeBg: '#ede9fe',
+            badgeColor: '#6d28d9'
+        },
     };
+
+    var HISTORY_FAMILY_LABELS = {
+        months: 'Số tháng thanh toán',
+        user: 'Chủ family',
+        email: 'Email',
+        number_phone: 'Số điện thoại',
+        number_bank: 'Số tài khoản',
+        name_bank: 'Ngân hàng',
+        payment_at: 'Ngày thanh toán',
+        next_payment_at: 'Hạn thanh toán youtube',
+        afiilicate_by: 'Người giới thiệu',
+        note: 'Ghi chú'
+    };
+
+    var HISTORY_DATE_FIELDS = ['payment_at', 'next_payment_at'];
 
     function historyPad(n) {
         return n < 10 ? '0' + n : '' + n;
@@ -429,6 +456,36 @@
             '<div>Ngày mua: ' + historyEscapeHtml(historyFormatDateOnly(fields.purchase_date)) + '</div>';
     }
 
+    // Dùng cho bản ghi thanh toán / sửa thông tin family: chỉ in các cột có trong dữ liệu.
+    function historyFamilyLines(fields) {
+        if (!fields) return '';
+        var html = '';
+        Object.keys(fields).forEach(function(key) {
+            var value = fields[key];
+            if (HISTORY_DATE_FIELDS.indexOf(key) !== -1) {
+                value = historyFormatDateOnly(value);
+            }
+            if (value === null || value === undefined || value === '') {
+                value = 'Trống';
+            }
+            html += '<div>' + historyEscapeHtml(HISTORY_FAMILY_LABELS[key] || key) + ': ' +
+                historyEscapeHtml(value) + '</div>';
+        });
+        return html;
+    }
+
+    function historyLinesFor(status, fields) {
+        return (status === 'payment' || status === 'family') ?
+            historyFamilyLines(fields) :
+            historyFieldLines(fields);
+    }
+
+    function historyActorBadge(item) {
+        if (!item.user_name) return '';
+        return '<span style="display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: #374151;">' +
+            historyEscapeHtml(item.user_name) + '</span>';
+    }
+
     function renderHistoryItemHtml(item) {
         var meta = HISTORY_STATUS_META[item.status] || HISTORY_STATUS_META.change;
         var oldFields = item.old_value ? JSON.parse(item.old_value) : null;
@@ -441,23 +498,24 @@
             '<div style="margin-bottom: 8px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">' +
             '<span style="display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: ' + meta.badgeBg + '; color: ' + meta.badgeColor + ';">' + meta.label + '</span>' +
             (item.family_user ? '<a href="/families/' + item.family_id + '/edit" style="display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #eff6ff; color: #2563eb; text-decoration: none;">' + historyEscapeHtml(item.family_user) + '</a>' : '') +
+            historyActorBadge(item) +
             '<span style="color: #6b7280; font-size: 13px;">' + historyEscapeHtml(historyFormatDateTime(item.created_at)) + '</span>' +
             '</div>' +
             '<div style="line-height: 1.6;' + (isDelete ? ' font-style: italic; color: #6b7280;' : '') + '">' +
-            historyFieldLines(isDelete ? oldFields : newFields) +
+            historyLinesFor(item.status, isDelete ? oldFields : newFields) +
             '</div>';
 
-        if (item.status === 'change' && oldFields) {
+        if (item.status !== 'add' && !isDelete && oldFields) {
             var toggleId = 'history-old-' + item.id;
             html += '<hr style="margin: 8px 0; border: none; border-top: 1px solid #e5e7eb;">' +
                 '<div id="' + toggleId + '-preview" style="color: #9ca3af; font-size: 13px;">' +
                 '<div style="line-height: 1.6; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;">' +
-                historyFieldLines(oldFields) +
+                historyLinesFor(item.status, oldFields) +
                 '</div>' +
                 '<button type="button" onclick="toggleFamilyHistoryOldValue(\'' + toggleId + '\')" style="background: none; border: none; padding: 0; margin-top: 2px; color: #9ca3af; font-size: 13px; cursor: pointer; text-decoration: underline;">...</button>' +
                 '</div>' +
                 '<div id="' + toggleId + '-full" style="display: none; margin-top: 8px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; color: #9ca3af; font-size: 13px; line-height: 1.6;">' +
-                historyFieldLines(oldFields) +
+                historyLinesFor(item.status, oldFields) +
                 '</div>';
         }
 

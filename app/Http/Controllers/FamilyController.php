@@ -66,6 +66,8 @@ class FamilyController extends Controller
 
     public function update(UpdateFamilyRequest $request, Family $family, BillUploadService $billUploads): RedirectResponse
     {
+        $familyBefore = $family->only(FamilyHistoryLogger::FAMILY_FIELDS);
+
         $family->fill($request->safe()->only([
             'payment_at',
             'next_payment_at',
@@ -81,6 +83,8 @@ class FamilyController extends Controller
         $family->bill_of_master = $billUploads->store($request->file('bill_of_master') ?? [], null, $family->bill_of_master);
         $family->bill_payment = $billUploads->store($request->file('bill_payment') ?? [], null, $family->bill_payment);
         $family->save();
+
+        FamilyHistoryLogger::logFamilyChanged($family, $familyBefore);
 
         $ids = (array) $request->input('member_ids', []);
         $rows = [];
@@ -113,15 +117,21 @@ class FamilyController extends Controller
             'bill_payment_paste' => ['nullable', 'string'],
         ]);
 
+        $familyBefore = $family->only(FamilyHistoryLogger::FAMILY_FIELDS);
+
         $family->bill_payment = $billUploads->store(
             $request->file('bill_payment') ?? [],
             $data['bill_payment_paste'] ?? null,
             $family->bill_payment,
         );
 
+        $months = (int) ($data['months'] ?? 0);
+
         $family->payment_at = now()->toDateString();
-        $family->next_payment_at = ($family->next_payment_at ?? now())->copy()->addMonths((int) ($data['months'] ?? 0));
+        $family->next_payment_at = ($family->next_payment_at ?? now())->copy()->addMonths($months);
         $family->save();
+
+        FamilyHistoryLogger::logPayment($family, $familyBefore, $months);
 
         return redirect()->route('families.index')->with('success', "Đã cập nhật thanh toán cho chủ farm: {$family->user}.");
     }
@@ -178,6 +188,7 @@ class FamilyController extends Controller
                 $query->where('history_joining_family.order_id', 'like', $term)
                     ->orWhere('history_joining_family.email', 'like', $term)
                     ->orWhere('history_joining_family.name_product', 'like', $term)
+                    ->orWhere('history_joining_family.user_name', 'like', $term)
                     ->orWhere('families.user', 'like', $term);
             })
             ->orderByDesc('history_joining_family.id')
