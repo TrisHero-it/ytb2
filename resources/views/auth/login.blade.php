@@ -25,13 +25,18 @@
                 <div class="input">
                     <input type="password" name="password" id="password" class="input_field" required />
                     <label class="input_label">Mật khẩu</label>
-                    <span class="input_eye" id="toggle-password" role="button" tabindex="0" aria-label="Hiện/ẩn mật khẩu">
+                    <span class="input_eye" id="toggle-password" role="button" tabindex="0" aria-label="Hiện mật khẩu" aria-pressed="false" title="Hiện mật khẩu">
                         <svg viewBox="0 0 146 74" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M143 37C143 45.4902 136.139 53.9606 123.263 60.487C110.554 66.9283 92.7879 71 73 71C53.2121 71 35.446 66.9283 22.7375 60.487C9.86096 53.9606 3 45.4902 3 37C3 28.5098 9.86096 20.0394 22.7375 13.513C35.446 7.07167 53.2121 3 73 3C92.7879 3 110.554 7.07167 123.263 13.513C136.139 20.0394 143 28.5098 143 37Z" stroke-width="6" />
                             <circle cx="73" cy="37" r="34" stroke-width="6" />
+                            <line class="input_eye-slash" x1="16" y1="70" x2="130" y2="4" stroke-width="6" stroke-linecap="round" />
                         </svg>
                     </span>
                 </div>
+                <label class="card_remember">
+                    <input type="checkbox" name="remember" value="1" @checked(old('remember', true)) />
+                    <span>Ghi nhớ đăng nhập trên máy này</span>
+                </label>
                 <button type="submit" class="card_button">Đăng nhập</button>
             </form>
         </div>
@@ -200,7 +205,20 @@
             if (!toggle || !password) return;
 
             function toggleVisibility() {
-                password.type = password.type === 'password' ? 'text' : 'password';
+                var visible = password.type === 'password';
+                password.type = visible ? 'text' : 'password';
+
+                toggle.classList.toggle('is-visible', visible);
+                toggle.setAttribute('aria-pressed', visible ? 'true' : 'false');
+
+                var label = visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+                toggle.setAttribute('aria-label', label);
+                toggle.setAttribute('title', label);
+
+                // Giữ con trỏ trong ô mật khẩu, ở đúng vị trí đang gõ.
+                var caret = password.value.length;
+                password.focus();
+                password.setSelectionRange(caret, caret);
             }
 
             toggle.addEventListener('click', toggleVisibility);

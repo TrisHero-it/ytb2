@@ -20,12 +20,15 @@ class LoginController extends Controller
         $credentials = $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
+            'remember' => ['nullable', 'boolean'],
         ]);
 
-        if (! Auth::attempt(['email' => $credentials['username'], 'password' => $credentials['password']])) {
+        $remember = $request->boolean('remember');
+
+        if (! Auth::attempt(['email' => $credentials['username'], 'password' => $credentials['password']], $remember)) {
             return back()->withErrors([
                 'username' => 'Tài khoản hoặc mật khẩu không đúng',
-            ])->onlyInput('username');
+            ])->onlyInput('username', 'remember');
         }
 
         $request->session()->regenerate();

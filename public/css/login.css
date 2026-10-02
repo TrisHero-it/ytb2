@@ -303,6 +303,11 @@ a:hover {
     transform: translateY(-25px);
 }
 
+/* Chừa chỗ cho icon con mắt để chữ không chạy xuống dưới nó. */
+#password.input_field {
+    padding-right: 40px;
+}
+
 .input_eye {
     position: absolute;
     bottom: 0;
@@ -318,12 +323,39 @@ a:hover {
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
+    /* Phải cao hơn .input_field (z-index: 1), nếu không input sẽ chặn click. */
+    z-index: 2;
+    cursor: pointer;
+    outline: 0;
 }
 
 .input_eye svg {
     width: 24px;
     height: auto;
     stroke: #8597a3;
+    -moz-transition: stroke 0.2s;
+    -o-transition: stroke 0.2s;
+    -webkit-transition: stroke 0.2s;
+    transition: stroke 0.2s;
+}
+
+.input_eye:hover svg,
+.input_eye:focus-visible svg {
+    stroke: #665856;
+}
+
+/* Mật khẩu đang bị ẩn: mắt bình thường, không có gạch chéo. */
+.input_eye-slash {
+    display: none;
+}
+
+/* Mật khẩu đang hiện: mắt bị gạch chéo và đổi sang màu nhấn. */
+.input_eye.is-visible svg {
+    stroke: #ff5050;
+}
+
+.input_eye.is-visible .input_eye-slash {
+    display: block;
 }
 
 .link {
@@ -337,4 +369,29 @@ a:hover {
     width: 50px;
     height: 50px;
     fill: #fff;
+}
+
+.card_remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    font-size: 13px;
+    color: #8597a3;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.card_remember input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: #ff5050;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.card_remember:hover {
+    color: #665856;
 }
