@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Family;
 use App\Models\User;
 use App\Queries\FamilyListQuery;
+use App\Support\MemberFormRows;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -116,9 +117,10 @@ class FamilyUpdateTest extends TestCase
 
         // Render the actual member-row partial, exactly as the edit form does,
         // and extract what the browser would resubmit unchanged for this member.
-        $rendered = view('families.partials.member-row', ['member' => $member])->render();
-        $this->assertMatchesRegularExpression('/<textarea[^>]*>(.*?)<\/textarea>/s', $rendered);
-        preg_match('/<textarea[^>]*>(.*?)<\/textarea>/s', $rendered, $matches);
+        $row = MemberFormRows::forForm($family->load('members'))[0];
+        $rendered = view('families.partials.member-row', ['row' => $row])->render();
+        $this->assertMatchesRegularExpression('/name="member_texts\[\]"[^>]*value="(.*?)"/s', $rendered);
+        preg_match('/name="member_texts\[\]"[^>]*value="(.*?)"/s', $rendered, $matches);
         $resubmittedText = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5);
 
         $this->actingAs($user)->put("/families/{$family->id}", $this->validPayload($family, [

@@ -61,21 +61,10 @@
                     </div>
                 </div>
 
-                <div id="member-rows">
-                    @foreach ($family->members as $member)
-                    @include('families.partials.member-row', ['member' => $member, 'excludeFamilyId' => $family->id])
-                    @endforeach
-                </div>
-
-                <template id="member-row-template">
-                    @include('families.partials.member-row', ['excludeFamilyId' => $family->id])
-                </template>
-
-                <button type="button" class="kt-btn mb-5" onclick="
-                        const tpl = document.getElementById('member-row-template');
-                        const clone = tpl.content.cloneNode(true);
-                        document.getElementById('member-rows').appendChild(clone);
-                    ">Thêm thành viên</button>
+                @include('families.partials.members-section', [
+                    'rows' => \App\Support\MemberFormRows::forForm($family),
+                    'excludeFamilyId' => $family->id,
+                ])
 
                 <button type="submit" class="kt-btn kt-btn-primary">Cập nhật family</button>
             </form>

@@ -49,19 +49,9 @@
                     </label>
                 </div>
 
-                <div id="member-rows">
-                    @include('families.partials.member-row')
-                </div>
-
-                <template id="member-row-template">
-                    @include('families.partials.member-row')
-                </template>
-
-                <button type="button" class="kt-btn mb-5" onclick="
-                        const tpl = document.getElementById('member-row-template');
-                        const clone = tpl.content.cloneNode(true);
-                        document.getElementById('member-rows').appendChild(clone);
-                    ">Thêm thành viên</button>
+                @include('families.partials.members-section', [
+                    'rows' => \App\Support\MemberFormRows::forForm(),
+                ])
 
                 <button type="submit" class="kt-btn kt-btn-primary">Lưu family</button>
             </form>

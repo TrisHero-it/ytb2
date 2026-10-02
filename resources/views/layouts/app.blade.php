@@ -114,8 +114,8 @@
     <script src="{{ asset('assets/js/widgets/general.js') }}"></script>
     <script>
         window.checkMemberEmailDuplicate = function(textarea, excludeFamilyId) {
-            var row = textarea.closest('[data-member-row]');
-            var warningEl = row ? row.querySelector('[data-member-email-warning]') : null;
+            var container = textarea.closest('[data-member-editor], [data-member-row]');
+            var warningEl = container ? container.querySelector('[data-member-email-warning]') : null;
             if (!warningEl) {
                 return;
             }

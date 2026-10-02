@@ -1,15 +1,18 @@
-@php($member = $member ?? null)
-@php($excludeFamilyId = $excludeFamilyId ?? null)
+@php($row = $row ?? ['id' => null, 'text' => '', 'order_code' => null, 'product_name' => null, 'email' => null, 'region' => null, 'purchase_date' => null])
 
-<div class="kt-card p-4 mb-3" data-member-row>
-    <input type="hidden" name="member_ids[]" value="{{ $member?->id }}" />
-    <textarea name="member_texts[]" rows="4" class="kt-textarea w-full" placeholder="Dán nội dung đơn hàng" oninput="checkMemberEmailDuplicate(this, {{ $excludeFamilyId ?? 'null' }})">{{ $member?->raw_text ?? ($member ? json_encode([
-        'order_code' => $member->order_code,
-        'product_name' => $member->product_name,
-        'email' => $member->email,
-        'region' => $member->region,
-        'purchase_date' => $member->purchase_date?->format('d/m/Y'),
-    ], JSON_UNESCAPED_UNICODE) : '') }}</textarea>
-    <p class="text-sm text-destructive mt-1 hidden" data-member-email-warning></p>
-    <button type="button" onclick="this.closest('[data-member-row]').remove()" class="kt-btn kt-btn-sm kt-btn-destructive mt-2">Xóa thành viên</button>
-</div>
+<tr data-member-row>
+    <td data-member-index style="color: #9ca3af;"></td>
+    <td>
+        <input type="hidden" name="member_ids[]" value="{{ $row['id'] }}" />
+        <input type="hidden" name="member_texts[]" data-member-text value="{{ $row['text'] }}" />
+        <span data-member-cell="order_code" style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">{{ $row['order_code'] ?: '—' }}</span>
+    </td>
+    <td data-member-cell="product_name" style="color: #4b5563;">{{ $row['product_name'] ?: '—' }}</td>
+    <td data-member-cell="email" style="color: #4b5563; white-space: nowrap;">{{ $row['email'] ?: '—' }}</td>
+    <td data-member-cell="region" style="color: #4b5563; white-space: nowrap;">{{ $row['region'] ?: '—' }}</td>
+    <td data-member-cell="purchase_date" style="text-align: right; color: #6b7280; white-space: nowrap;">{{ $row['purchase_date'] ?: '—' }}</td>
+    <td style="text-align: right; white-space: nowrap;">
+        <button type="button" class="kt-btn kt-btn-sm" onclick="openMemberEditor(this.closest('[data-member-row]'))">Sửa</button>
+        <button type="button" class="kt-btn kt-btn-sm kt-btn-destructive" onclick="removeMemberRow(this)">Xóa</button>
+    </td>
+</tr>
