@@ -78,6 +78,35 @@ class MemberTableFormTest extends TestCase
         }
     }
 
+    public function test_deleting_a_member_asks_for_confirmation_first(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily();
+        $family->members()->create(['order_code' => 'DH1', 'email' => 'member@example.com']);
+
+        $response = $this->actingAs($user)->get("/families/{$family->id}/edit");
+
+        $response->assertOk();
+        $response->assertSee('removeMemberRow(this)', false);
+        $response->assertSee('khỏi danh sách thành viên?', false);
+    }
+
+    public function test_each_form_announces_changes_with_its_own_submit_button_name(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily();
+
+        $create = $this->actingAs($user)->get('/families/create');
+        $create->assertOk();
+        $create->assertSee('id="member-toast"', false);
+        $create->assertSee('MEMBER_SUBMIT_LABEL = "Lưu family"', false);
+
+        $edit = $this->actingAs($user)->get("/families/{$family->id}/edit");
+        $edit->assertOk();
+        $edit->assertSee('id="member-toast"', false);
+        $edit->assertSee('MEMBER_SUBMIT_LABEL = "Cập nhật family"', false);
+    }
+
     public function test_edit_form_keeps_what_was_typed_when_validation_fails(): void
     {
         $user = User::factory()->create();

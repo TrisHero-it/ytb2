@@ -1,5 +1,6 @@
 @php($rows = $rows ?? [])
 @php($excludeFamilyId = $excludeFamilyId ?? null)
+@php($submitLabel = $submitLabel ?? 'Lưu family')
 
 <div class="mb-5">
     <div class="flex items-center justify-between mb-3" style="gap: 12px;">
@@ -57,6 +58,11 @@
             <button type="button" class="kt-btn kt-btn-primary" onclick="saveMemberEditor()">Lưu thành viên</button>
         </div>
     </div>
+</div>
+
+<div id="member-toast" role="status" aria-live="polite" style="display: none; position: fixed; top: 72px; right: 20px; z-index: 1100; max-width: 380px; align-items: flex-start; gap: 10px; padding: 12px 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.5rem; color: #15803d; box-shadow: 0 8px 24px -8px rgba(0,0,0,0.25);">
+    <i class="ki-filled ki-check-circle" style="font-size: 18px; flex-shrink: 0; margin-top: 1px;"></i>
+    <span id="member-toast-text" style="font-weight: 500; font-size: 13px; line-height: 1.5;"></span>
 </div>
 
 @push('scripts')
@@ -162,9 +168,47 @@
         if (wrapper) wrapper.style.display = rows.length === 0 ? 'none' : 'block';
     }
 
+    var MEMBER_SUBMIT_LABEL = @json($submitLabel, JSON_UNESCAPED_UNICODE);
+    var memberToastTimer = null;
+
+    // Thay đổi trên bảng chỉ nằm ở trình duyệt cho tới khi bấm nút lưu của form,
+    // nên thông báo luôn nhắc lại bước đó.
+    function showMemberToast(message) {
+        var toast = document.getElementById('member-toast');
+        if (!toast) return;
+
+        document.getElementById('member-toast-text').textContent =
+            message + ' Bấm "' + MEMBER_SUBMIT_LABEL + '" để lưu lại.';
+        toast.style.display = 'flex';
+
+        clearTimeout(memberToastTimer);
+        memberToastTimer = setTimeout(function() {
+            toast.style.display = 'none';
+        }, 4000);
+    }
+
+    /** Tên dễ nhận ra của một dòng, để đưa vào câu hỏi xác nhận và thông báo. */
+    function memberRowLabel(row) {
+        var email = row.querySelector('[data-member-cell="email"]');
+        var orderCode = row.querySelector('[data-member-cell="order_code"]');
+
+        if (email && email.textContent !== '—') return email.textContent;
+        if (orderCode && orderCode.textContent !== '—') return 'đơn ' + orderCode.textContent;
+
+        return 'thành viên này';
+    }
+
     function removeMemberRow(button) {
-        button.closest('[data-member-row]').remove();
+        var row = button.closest('[data-member-row]');
+        var label = memberRowLabel(row);
+
+        if (! confirm('Xóa ' + label + ' khỏi danh sách thành viên?')) {
+            return;
+        }
+
+        row.remove();
         renumberMemberRows();
+        showMemberToast('Đã xóa ' + label + ' khỏi danh sách.');
     }
 
     function openMemberEditor(row) {
@@ -224,8 +268,9 @@
 
         var fields = parseMemberText(text);
         var row = memberEditorTarget;
+        var isNew = !row;
 
-        if (!row) {
+        if (isNew) {
             var template = document.getElementById('member-row-template');
             row = template.content.cloneNode(true).querySelector('[data-member-row]');
             document.getElementById('member-rows').appendChild(row);
@@ -234,6 +279,8 @@
         renderMemberRow(row, fields, text);
         renumberMemberRows();
         closeMemberEditor();
+
+        showMemberToast((isNew ? 'Đã thêm ' : 'Đã sửa ') + memberRowLabel(row) + '.');
     }
 
     document.addEventListener('keydown', function(event) {

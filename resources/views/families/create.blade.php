@@ -51,6 +51,7 @@
 
                 @include('families.partials.members-section', [
                     'rows' => \App\Support\MemberFormRows::forForm(),
+                    'submitLabel' => 'Lưu family',
                 ])
 
                 <button type="submit" class="kt-btn kt-btn-primary">Lưu family</button>

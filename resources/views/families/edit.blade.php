@@ -64,6 +64,7 @@
                 @include('families.partials.members-section', [
                     'rows' => \App\Support\MemberFormRows::forForm($family),
                     'excludeFamilyId' => $family->id,
+                    'submitLabel' => 'Cập nhật family',
                 ])
 
                 <button type="submit" class="kt-btn kt-btn-primary">Cập nhật family</button>
