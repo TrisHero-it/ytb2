@@ -213,12 +213,14 @@
                                         <tbody>
                                             @foreach ($family->members as $index => $member)
                                             @php
+                                            // Cùng cách đọc số tháng với FamilyListQuery, nếu không khớp
+                                            // thì "ngày family trống" trên thẻ và hạn từng thành viên lệch nhau.
                                             $memberMonths = null;
-                                            if ($member->product_name && preg_match('/(\d+)\s*Tháng/ui', $member->product_name, $memberMonthMatch)) {
+                                            if ($member->product_name && preg_match('/(\d+)\s*Th/ui', $member->product_name, $memberMonthMatch)) {
                                             $memberMonths = (int) $memberMonthMatch[1];
                                             }
                                             $memberExpireDate = $member->purchase_date
-                                            ? $member->purchase_date->copy()->addMonths($memberMonths ?? (str_contains((string) $member->product_name, '6') ? 6 : 12))
+                                            ? $member->purchase_date->copy()->addMonthsNoOverflow($memberMonths ?? 12)
                                             : null;
                                             $memberExpireDays = $memberExpireDate
                                             ? now()->startOfDay()->diffInDays($memberExpireDate->copy()->startOfDay(), false)
@@ -474,7 +476,28 @@
         return html;
     }
 
+    // Lịch sử từ phiên bản cũ lưu text thuần chứ không phải JSON. JSON.parse trần
+    // ném lỗi ở một dòng như vậy và làm hỏng toàn bộ danh sách lịch sử, nên giữ
+    // lại nguyên văn để vẫn đọc được.
+    function historyParseValue(value) {
+        if (!value) return null;
+
+        try {
+            var decoded = JSON.parse(value);
+            if (decoded && typeof decoded === 'object') return decoded;
+        } catch (e) {}
+
+        return { __raw: String(value) };
+    }
+
+    function historyRawLines(text) {
+        return '<div style="white-space: pre-wrap;">' + historyEscapeHtml(text) + '</div>';
+    }
+
     function historyLinesFor(status, fields) {
+        if (!fields) return '';
+        if (fields.__raw !== undefined) return historyRawLines(fields.__raw);
+
         return (status === 'payment' || status === 'family') ?
             historyFamilyLines(fields) :
             historyFieldLines(fields);
@@ -488,8 +511,8 @@
 
     function renderHistoryItemHtml(item) {
         var meta = HISTORY_STATUS_META[item.status] || HISTORY_STATUS_META.change;
-        var oldFields = item.old_value ? JSON.parse(item.old_value) : null;
-        var newFields = item.new_value ? JSON.parse(item.new_value) : null;
+        var oldFields = historyParseValue(item.old_value);
+        var newFields = historyParseValue(item.new_value);
         var isDelete = item.status === 'delete';
 
         var html = '<div style="position: relative; margin-bottom: 16px;">' +

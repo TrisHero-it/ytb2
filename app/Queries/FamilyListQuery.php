@@ -24,7 +24,10 @@ class FamilyListQuery
 
         $aggregates = DB::table('family_members')
             ->selectRaw('family_id')
-            ->selectRaw("MIN(COALESCE(DATE_ADD(purchase_date, INTERVAL (CASE WHEN product_name LIKE '%6%' THEN 6 ELSE 12 END) MONTH), '9999-12-31')) as family_empty_date")
+            // Lấy con số đứng ngay trước "Tháng" trong tên sản phẩm. Cách cũ là
+            // LIKE '%6%' nên "12 Tháng x 6" bị tính thành gói 6 tháng. Không đọc
+            // được số nào thì coi như 12 tháng, giống chỗ hiển thị từng thành viên.
+            ->selectRaw("MIN(COALESCE(DATE_ADD(purchase_date, INTERVAL COALESCE(CAST(REGEXP_SUBSTR(product_name, '[0-9]+(?= *Th)') AS UNSIGNED), 12) MONTH), '9999-12-31')) as family_empty_date")
             ->selectRaw('COUNT(*) as member_count')
             ->groupBy('family_id');
 

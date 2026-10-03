@@ -86,6 +86,41 @@ class FamilyHistoryLogger
     }
 
     /**
+     * Có phải lần thanh toán này vừa được ghi xong hay không.
+     *
+     * Bấm đúp nút "Xác nhận thanh toán" gửi hai POST giống hệt nhau cách nhau
+     * vài trăm mili giây, và CSRF token của Laravel gắn theo session nên lần
+     * thứ hai vẫn hợp lệ, cộng thêm tháng lần nữa. Dấu vết để lại là hai dòng
+     * payment cùng family, cùng người bấm, cùng số tháng, trong cùng một giây.
+     *
+     * Số tháng cũng phải khớp: bấm đúp luôn gửi lại y nguyên số tháng, còn
+     * người dùng cố ý thanh toán thêm một số tháng khác thì không bị chặn.
+     */
+    public static function hasJustLoggedPayment(int $familyId, ?int $userId, int $months, int $withinSeconds): bool
+    {
+        $recent = History::query()
+            ->where('status', 'payment')
+            ->where('family_id', $familyId)
+            ->when(
+                $userId === null,
+                fn ($query) => $query->whereNull('user_id'),
+                fn ($query) => $query->where('user_id', $userId),
+            )
+            ->where('created_at', '>=', now()->subSeconds($withinSeconds))
+            ->orderByDesc('id')
+            ->first();
+
+        if ($recent === null) {
+            return false;
+        }
+
+        // Lịch sử từ phiên bản cũ có dòng không phải JSON, json_decode trả null.
+        $decoded = json_decode((string) $recent->new_value, true);
+
+        return is_array($decoded) && (int) ($decoded['months'] ?? 0) === $months;
+    }
+
+    /**
      * Ghi lại việc sửa thông tin family (chỉ các cột thực sự thay đổi).
      *
      * @param  array<string, mixed>  $old  giá trị trước khi lưu

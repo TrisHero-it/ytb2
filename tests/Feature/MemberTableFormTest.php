@@ -173,6 +173,30 @@ class MemberTableFormTest extends TestCase
         $this->assertSame(self::PASTED_TEXT, $rows[0]['text']);
     }
 
+    /**
+     * Mẫu dòng trống dùng để nhân bản khi bấm "Thêm thành viên". Nó từng thừa
+     * hưởng $row của vòng lặp phía trên nên mang sẵn id của thành viên cuối:
+     * xoá thành viên cuối rồi thêm người mới sẽ ghi đè lên người cũ thay vì
+     * xoá đi và thêm mới, và lịch sử ghi nhầm thành "Sửa".
+     */
+    public function test_the_blank_row_template_carries_no_member_id_or_text(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily();
+        $family->members()->create(['order_code' => 'DH1', 'email' => 'a@example.com', 'raw_text' => 'RAW1']);
+        $last = $family->members()->create(['order_code' => 'DH_LAST', 'email' => 'b@example.com', 'raw_text' => 'RAW_LAST']);
+
+        $html = $this->actingAs($user)->get("/families/{$family->id}/edit")->getContent();
+
+        $start = strpos($html, '<template id="member-row-template">');
+        $template = substr($html, $start, strpos($html, '</template>', $start) - $start);
+
+        $this->assertStringNotContainsString('DH_LAST', $template);
+        $this->assertStringNotContainsString('RAW_LAST', $template);
+        $this->assertStringNotContainsString('value="'.$last->id.'"', $template);
+        $this->assertStringContainsString('name="member_ids[]" value=""', $template);
+    }
+
     public function test_a_member_without_raw_text_is_still_editable_as_json(): void
     {
         $family = $this->makeFamily();

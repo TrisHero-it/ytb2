@@ -39,6 +39,9 @@
                     <label>Ngân hàng
                         @include('families.partials.bank-select', ['currentBank' => old('name_bank', $family->name_bank)])
                     </label>
+                    <label>Ngày thanh toán gần nhất
+                        <input type="date" name="payment_at" value="{{ old('payment_at', $family->payment_at?->format('Y-m-d')) }}" class="kt-input" />
+                    </label>
                     <label>Ngày đến hạn thanh toán
                         <input type="date" name="next_payment_at" value="{{ old('next_payment_at', $family->next_payment_at?->format('Y-m-d')) }}" class="kt-input" />
                     </label>

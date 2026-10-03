@@ -61,7 +61,37 @@ class FamilyQuickPayTest extends TestCase
         ]);
 
         $family->refresh();
-        $this->assertSame(now()->addMonth()->toDateString(), $family->next_payment_at->toDateString());
+        $this->assertSame(now()->addMonthNoOverflow()->toDateString(), $family->next_payment_at->toDateString());
+    }
+
+    /**
+     * Hạn rơi vào ngày 31: cộng tháng kiểu tràn sẽ nhảy sang 03/03 và ngày hạn
+     * trôi vĩnh viễn từ đó, nên phải kẹp về ngày cuối cùng của tháng đích.
+     */
+    public function test_quick_pay_clamps_a_month_end_due_date_instead_of_overflowing(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily(['next_payment_at' => '2026-01-31']);
+
+        $this->actingAs($user)->post("/families/{$family->id}/quick-pay", [
+            'months' => 1,
+        ]);
+
+        $family->refresh();
+        $this->assertSame('2026-02-28', $family->next_payment_at->toDateString());
+    }
+
+    public function test_quick_pay_keeps_the_same_day_when_the_target_month_is_long_enough(): void
+    {
+        $user = User::factory()->create();
+        $family = $this->makeFamily(['next_payment_at' => '2026-08-31']);
+
+        $this->actingAs($user)->post("/families/{$family->id}/quick-pay", [
+            'months' => 2,
+        ]);
+
+        $family->refresh();
+        $this->assertSame('2026-10-31', $family->next_payment_at->toDateString());
     }
 
     public function test_quick_pay_keeps_next_payment_at_when_no_months_are_paid(): void

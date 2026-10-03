@@ -14,10 +14,14 @@ use App\Support\FamilyMemberReconciler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class FamilyController extends Controller
 {
+    /** Hai lần thanh toán giống hệt nhau trong khoảng này được coi là một lần bấm trùng. */
+    private const DUPLICATE_PAYMENT_WINDOW_SECONDS = 10;
+
     public function index(Request $request): View
     {
         $families = (new FamilyListQuery())->paginate(
@@ -115,7 +119,22 @@ class FamilyController extends Controller
         $data = $request->validate([
             'months' => ['nullable', 'integer', 'min:0'],
             'bill_payment_paste' => ['nullable', 'string'],
+            'bill_payment' => ['array'],
+            'bill_payment.*' => ['file', 'mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx', 'max:10240'],
+        ], [
+            'bill_payment.*.mimes' => 'Bill thanh toán chỉ nhận ảnh (jpg, png, gif, webp), PDF hoặc Word.',
+            'bill_payment.*.max' => 'Bill thanh toán không được lớn hơn 10MB.',
         ]);
+
+        $months = (int) ($data['months'] ?? 0);
+
+        // Chốt chặn ở trình duyệt chỉ sống trong một trang đang mở: bấm Back rồi
+        // gửi lại, hoặc mở hai tab, vẫn cộng tháng hai lần. Bỏ qua trước khi lưu
+        // bill để lần bấm trùng không để lại ảnh thừa.
+        if (FamilyHistoryLogger::hasJustLoggedPayment($family->id, Auth::id(), $months, self::DUPLICATE_PAYMENT_WINDOW_SECONDS)) {
+            return redirect()->route('families.index')
+                ->with('success', "Lần bấm này trùng với thanh toán vừa ghi nhận cho chủ farm: {$family->user}, đã bỏ qua.");
+        }
 
         $familyBefore = $family->only(FamilyHistoryLogger::FAMILY_FIELDS);
 
@@ -125,10 +144,10 @@ class FamilyController extends Controller
             $family->bill_payment,
         );
 
-        $months = (int) ($data['months'] ?? 0);
-
         $family->payment_at = now()->toDateString();
-        $family->next_payment_at = ($family->next_payment_at ?? now())->copy()->addMonths($months);
+        // addMonths() tràn sang tháng sau khi ngày hạn là 31: 31/01 + 1 tháng ra 03/03
+        // và ngày hạn trôi luôn từ đó. addMonthsNoOverflow() kẹp lại thành 28/02.
+        $family->next_payment_at = ($family->next_payment_at ?? now())->copy()->addMonthsNoOverflow($months);
         $family->save();
 
         FamilyHistoryLogger::logPayment($family, $familyBefore, $months);

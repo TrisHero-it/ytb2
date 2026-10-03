@@ -31,14 +31,19 @@ class FamilyUpdateTest extends TestCase
         ], $overrides);
     }
 
-    public function test_updates_family_fields(): void
+    /** Sửa xong thì ở lại trang sửa để còn kiểm tra lại, không nhảy về danh sách. */
+    public function test_updates_family_fields_and_stays_on_the_edit_page(): void
     {
         $user = User::factory()->create();
         $family = $this->makeFamily();
+        $editUrl = route('families.edit', $family);
 
-        $response = $this->actingAs($user)->put("/families/{$family->id}", $this->validPayload($family, ['user' => 'Updated Name']));
+        $response = $this->actingAs($user)
+            ->from($editUrl)
+            ->put("/families/{$family->id}", $this->validPayload($family, ['user' => 'Updated Name']));
 
-        $response->assertRedirect('/families');
+        $response->assertRedirect($editUrl);
+        $response->assertSessionHas('success');
         $this->assertDatabaseHas('families', ['id' => $family->id, 'user' => 'Updated Name']);
     }
 

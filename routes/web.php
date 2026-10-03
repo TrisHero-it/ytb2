@@ -15,13 +15,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'store']);
 });
 
-Route::get('/api/families/{family}/history', [FamilyController::class, 'history'])->name('families.history');
 Route::get('/guide', [GuideController::class, 'index'])->name('guide');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::resource('families', FamilyController::class)->except(['show']);
     Route::post('/families/{family}/quick-pay', [FamilyController::class, 'quickPay'])->name('families.quick-pay');
+    Route::get('/api/families/{family}/history', [FamilyController::class, 'history'])->name('families.history');
     Route::get('/api/families/check-member-email', [FamilyController::class, 'checkMemberEmail'])->name('families.check-member-email');
     Route::get('/api/history/search', [FamilyController::class, 'historySearch'])->name('history.search');
     Route::resource('collaborators', CollaboratorController::class)->except(['show']);

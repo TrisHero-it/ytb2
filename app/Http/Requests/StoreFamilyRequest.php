@@ -9,6 +9,8 @@ use Illuminate\Validation\Validator;
 
 class StoreFamilyRequest extends FormRequest
 {
+    /** Một family YouTube Premium chỉ chứa được 5 thành viên. */
+    private const MAX_MEMBERS = 5;
     public function authorize(): bool
     {
         return true;
@@ -26,16 +28,41 @@ class StoreFamilyRequest extends FormRequest
             'number_phone' => ['nullable', 'string'],
             'afiilicate_by' => ['nullable', 'string'],
             'note' => ['nullable', 'string'],
-            'member_texts' => ['array'],
+            'bill_of_master' => ['array'],
+            'bill_of_master.*' => ['file', 'mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx', 'max:10240'],
+            'bill_payment' => ['array'],
+            'bill_payment.*' => ['file', 'mimes:jpeg,jpg,png,gif,webp,pdf,doc,docx', 'max:10240'],            'member_texts' => ['array'],
             'member_texts.*' => ['nullable', 'string'],
             'member_ids' => ['array'],
             'member_ids.*' => ['nullable', 'integer'],
         ];
     }
 
+    /** Mặc định Laravel báo bằng tiếng Anh, mà bill là chỗ người dùng hay gặp lỗi nhất. */
+    public function messages(): array
+    {
+        return [
+            'bill_of_master.*.mimes' => 'Bill gốc chỉ nhận ảnh (jpg, png, gif, webp), PDF hoặc Word.',
+            'bill_of_master.*.max' => 'Bill gốc không được lớn hơn 10MB.',
+            'bill_payment.*.mimes' => 'Bill thanh toán chỉ nhận ảnh (jpg, png, gif, webp), PDF hoặc Word.',
+            'bill_payment.*.max' => 'Bill thanh toán không được lớn hơn 10MB.',
+        ];
+    }
+
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
+            $filled = collect((array) $this->input('member_texts', []))
+                ->filter(fn ($text) => trim((string) $text) !== '')
+                ->count();
+
+            if ($filled > self::MAX_MEMBERS) {
+                $validator->errors()->add(
+                    'member_texts',
+                    'Một family chỉ chứa được '.self::MAX_MEMBERS.' thành viên, danh sách đang có '.$filled.'.',
+                );
+            }
+
             $seen = [];
             foreach ((array) $this->input('member_texts', []) as $index => $text) {
                 $email = MemberTextParser::parse($text)['email'];

@@ -34,8 +34,10 @@
         <p style="margin: 0;">Chưa có thành viên nào. Bấm "Thêm thành viên" rồi dán nội dung đơn hàng.</p>
     </div>
 
+    {{-- Không truyền `row` thì Blade lấy luôn $row còn sót lại của @foreach phía trên,
+         nên dòng "trống" này từng mang id và nội dung của thành viên cuối cùng. --}}
     <template id="member-row-template">
-        @include('families.partials.member-row')
+        @include('families.partials.member-row', ['row' => null])
     </template>
 
     <button type="button" class="kt-btn mt-3" onclick="openMemberEditor(null)">Thêm thành viên</button>

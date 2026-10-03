@@ -76,10 +76,11 @@ class DoubleSubmitGuardTest extends TestCase
     }
 
     /**
-     * Nếu chốt chặn ở trình duyệt hỏng, hai request vẫn cộng hai lần. Test này
-     * ghi lại đúng hành vi đó để sau này ai đọc cũng biết vì sao cần chặn.
+     * Chốt chặn ở trình duyệt chỉ là lớp đầu: nó sống trong một trang đang mở
+     * nên bấm Back rồi gửi lại, hoặc mở hai tab, vẫn lọt. Server tự nhận ra lần
+     * bấm trùng, chi tiết các ca biên nằm ở QuickPayDuplicateGuardTest.
      */
-    public function test_two_quick_pay_requests_do_move_the_due_date_twice(): void
+    public function test_two_quick_pay_requests_only_move_the_due_date_once(): void
     {
         $user = User::factory()->create();
         $family = $this->makeFamily();
@@ -87,7 +88,7 @@ class DoubleSubmitGuardTest extends TestCase
         $this->actingAs($user)->post("/families/{$family->id}/quick-pay", ['months' => 1]);
         $this->actingAs($user)->post("/families/{$family->id}/quick-pay", ['months' => 1]);
 
-        $this->assertSame('2027-01-11', $family->fresh()->next_payment_at->toDateString());
-        $this->assertDatabaseCount('history_joining_family', 2);
+        $this->assertSame('2026-12-11', $family->fresh()->next_payment_at->toDateString());
+        $this->assertDatabaseCount('history_joining_family', 1);
     }
 }
