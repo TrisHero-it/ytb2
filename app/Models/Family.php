@@ -30,6 +30,7 @@ class Family extends Model
         return [
             'payment_at' => 'date',
             'next_payment_at' => 'date',
+            'is_locked' => 'boolean',
         ];
     }
 

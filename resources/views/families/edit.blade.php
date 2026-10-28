@@ -7,6 +7,22 @@
     <div class="kt-card kt-card-grid h-full min-w-full">
         <div class="kt-card-header">
             <h3 class="kt-card-title">Sửa family</h3>
+            {{-- Form riêng, đặt ngoài form sửa: HTML không cho lồng form trong form. --}}
+            @if ($family->is_locked)
+            <form method="POST" action="{{ route('families.unlock', $family) }}" data-loading-text="Đang mở khóa...">
+                @csrf
+                <button type="submit" class="kt-btn kt-btn-outline" onclick="return confirm('Mở khóa family này? Sau khi mở khóa có thể sửa thành viên.')">
+                    <i class="ki-filled ki-lock-3"></i> Mở khóa
+                </button>
+            </form>
+            @else
+            <form method="POST" action="{{ route('families.lock', $family) }}" data-loading-text="Đang khóa...">
+                @csrf
+                <button type="submit" class="kt-btn kt-btn-outline" onclick="return confirm('Khóa family này? Thay đổi thành viên chưa bấm lưu sẽ bị bỏ.')">
+                    <i class="ki-filled ki-lock"></i> Khóa family
+                </button>
+            </form>
+            @endif
         </div>
         <div class="p-5">
             @if ($errors->any())
@@ -68,6 +84,7 @@
                     'rows' => \App\Support\MemberFormRows::forForm($family),
                     'excludeFamilyId' => $family->id,
                     'submitLabel' => 'Cập nhật family',
+                    'locked' => (bool) $family->is_locked,
                 ])
 
                 <button type="submit" class="kt-btn kt-btn-primary">Cập nhật family</button>

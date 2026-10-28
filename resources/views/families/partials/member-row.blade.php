@@ -12,7 +12,11 @@
     <td data-member-cell="region" style="color: #4b5563; white-space: nowrap;">{{ $row['region'] ?: '—' }}</td>
     <td data-member-cell="purchase_date" style="text-align: right; color: #6b7280; white-space: nowrap;">{{ $row['purchase_date'] ?: '—' }}</td>
     <td style="text-align: right; white-space: nowrap;">
+        @if ($locked ?? false)
+        <i class="ki-filled ki-lock" title="Family đang khóa" style="color: #9ca3af;"></i>
+        @else
         <button type="button" class="kt-btn kt-btn-sm" onclick="openMemberEditor(this.closest('[data-member-row]'))">Sửa</button>
         <button type="button" class="kt-btn kt-btn-sm kt-btn-destructive" onclick="removeMemberRow(this)">Xóa</button>
+        @endif
     </td>
 </tr>

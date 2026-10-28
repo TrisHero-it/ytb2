@@ -156,6 +156,20 @@ class FamilyHistoryLogger
     }
 
     /**
+     * Ghi lại việc khóa / mở khóa family theo trạng thái hiện tại của nó.
+     */
+    public static function logLockChanged(Family $family): void
+    {
+        History::create(self::withActor([
+            'order_id' => '',
+            'family_id' => $family->id,
+            'status' => $family->is_locked ? 'lock' : 'unlock',
+            'name_product' => '',
+            'email' => $family->email ?? '',
+        ]));
+    }
+
+    /**
      * Gắn người đang đăng nhập vào bản ghi lịch sử.
      * `user_name` được lưu kèm để lịch sử vẫn đọc được nếu tài khoản bị xoá.
      */

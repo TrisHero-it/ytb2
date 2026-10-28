@@ -21,6 +21,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::resource('families', FamilyController::class)->except(['show']);
     Route::post('/families/{family}/quick-pay', [FamilyController::class, 'quickPay'])->name('families.quick-pay');
+    Route::post('/families/{family}/lock', [FamilyController::class, 'lock'])->name('families.lock');
+    Route::post('/families/{family}/unlock', [FamilyController::class, 'unlock'])->name('families.unlock');
     Route::get('/api/families/{family}/history', [FamilyController::class, 'history'])->name('families.history');
     Route::get('/api/families/check-member-email', [FamilyController::class, 'checkMemberEmail'])->name('families.check-member-email');
     Route::get('/api/history/search', [FamilyController::class, 'historySearch'])->name('history.search');

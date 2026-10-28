@@ -1,10 +1,16 @@
 @php($rows = $rows ?? [])
 @php($excludeFamilyId = $excludeFamilyId ?? null)
 @php($submitLabel = $submitLabel ?? 'Lưu family')
+@php($locked = $locked ?? false)
 
 <div class="mb-5">
     <div class="flex items-center justify-between mb-3" style="gap: 12px;">
         <h4 class="kt-card-title" style="margin: 0;">Thành viên</h4>
+        @if ($locked)
+        <span style="display: flex; align-items: center; gap: 4px; margin-left: auto; background: #fef3c7; color: #b45309; font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 9999px;">
+            <i class="ki-filled ki-lock"></i> Đang khóa
+        </span>
+        @endif
         <span id="member-count" style="flex-shrink: 0; background: #eff6ff; color: #2563eb; font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 9999px;">0 / 5</span>
     </div>
 
@@ -23,7 +29,7 @@
             </thead>
             <tbody id="member-rows">
                 @foreach ($rows as $row)
-                    @include('families.partials.member-row', ['row' => $row])
+                    @include('families.partials.member-row', ['row' => $row, 'locked' => $locked])
                 @endforeach
             </tbody>
         </table>
@@ -31,7 +37,7 @@
 
     <div id="member-empty" style="display: none; text-align: center; padding: 24px 16px; color: #9ca3af;">
         <i class="ki-filled ki-people" style="font-size: 24px; display: block; margin-bottom: 6px;"></i>
-        <p style="margin: 0;">Chưa có thành viên nào. Bấm "Thêm thành viên" rồi dán nội dung đơn hàng.</p>
+        <p style="margin: 0;">{{ $locked ? 'Chưa có thành viên nào.' : 'Chưa có thành viên nào. Bấm "Thêm thành viên" rồi dán nội dung đơn hàng.' }}</p>
     </div>
 
     {{-- Không truyền `row` thì Blade lấy luôn $row còn sót lại của @foreach phía trên,
@@ -40,7 +46,14 @@
         @include('families.partials.member-row', ['row' => null])
     </template>
 
+    {{-- Lúc khóa các dòng vẫn giữ input ẩn để form gửi lên đúng danh sách đang lưu.
+         Bỏ input đi thì server hiểu là xóa hết thành viên nếu family được mở khóa
+         ở tab khác trong lúc trang này còn mở. --}}
+    @if ($locked)
+    <p style="margin: 12px 0 0; color: #b45309; font-size: 13px;">Family đang khóa nên không thêm, sửa hay xóa được thành viên. Bấm "Mở khóa" ở đầu trang nếu cần sửa.</p>
+    @else
     <button type="button" class="kt-btn mt-3" onclick="openMemberEditor(null)">Thêm thành viên</button>
+    @endif
 </div>
 
 <div id="member-editor-modal" data-member-editor style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1050; padding: 16px;" onclick="if (event.target === this) closeMemberEditor();">

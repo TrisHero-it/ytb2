@@ -70,6 +70,27 @@ class FamilyController extends Controller
 
     public function update(UpdateFamilyRequest $request, Family $family, BillUploadService $billUploads): RedirectResponse
     {
+        $ids = (array) $request->input('member_ids', []);
+        $rows = [];
+        foreach ((array) $request->input('member_texts', []) as $index => $text) {
+            if (trim((string) $text) === '') {
+                continue;
+            }
+            $rows[] = [
+                'id' => isset($ids[$index]) && $ids[$index] !== '' ? (int) $ids[$index] : null,
+                'text' => $text,
+            ];
+        }
+
+        // Form mở từ trước lúc khóa vẫn gửi được thay đổi thành viên lên, nên chặn
+        // ở đây chứ không chỉ ẩn nút. Không giữ lại danh sách vừa gửi để trang sửa
+        // hiện đúng thành viên đang lưu trong DB.
+        if ($family->is_locked && FamilyMemberReconciler::changesMemberData($family, $rows)) {
+            return redirect()->back()
+                ->withInput($request->except(['member_texts', 'member_ids']))
+                ->withErrors(['member_texts' => 'Family đang khóa nên không sửa được thành viên. Mở khóa rồi thử lại.']);
+        }
+
         $familyBefore = $family->only(FamilyHistoryLogger::FAMILY_FIELDS);
 
         $family->fill($request->safe()->only([
@@ -90,21 +111,40 @@ class FamilyController extends Controller
 
         FamilyHistoryLogger::logFamilyChanged($family, $familyBefore);
 
-        $ids = (array) $request->input('member_ids', []);
-        $rows = [];
-        foreach ((array) $request->input('member_texts', []) as $index => $text) {
-            if (trim((string) $text) === '') {
-                continue;
-            }
-            $rows[] = [
-                'id' => isset($ids[$index]) && $ids[$index] !== '' ? (int) $ids[$index] : null,
-                'text' => $text,
-            ];
+        // Đang khóa thì không đụng tới thành viên. Dữ liệu đã giống hệt nhưng
+        // reconcile() vẫn ghi lại `raw_text` cho thành viên cũ.
+        if (! $family->is_locked) {
+            $diffs = FamilyMemberReconciler::reconcile($family, $rows);
+            FamilyHistoryLogger::logDiffs($family->id, $diffs);
         }
-        $diffs = FamilyMemberReconciler::reconcile($family, $rows);
-        FamilyHistoryLogger::logDiffs($family->id, $diffs);
 
         return redirect()->back()->with('success', 'Cập nhật family thành công!');
+    }
+
+    public function lock(Family $family): RedirectResponse
+    {
+        return $this->setLocked($family, true, "Đã khóa family của chủ farm: {$family->user}. Muốn sửa thành viên thì mở khóa trước.");
+    }
+
+    public function unlock(Family $family): RedirectResponse
+    {
+        return $this->setLocked($family, false, "Đã mở khóa family của chủ farm: {$family->user}.");
+    }
+
+    /**
+     * Khóa và mở khóa là hai route riêng chứ không phải một nút bật/tắt: trang
+     * mở lâu hoặc bấm đúp gửi lại cùng một yêu cầu thì kết quả vẫn như nhau.
+     */
+    private function setLocked(Family $family, bool $locked, string $message): RedirectResponse
+    {
+        if ((bool) $family->is_locked !== $locked) {
+            $family->is_locked = $locked;
+            $family->save();
+
+            FamilyHistoryLogger::logLockChanged($family);
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function destroy(Family $family): RedirectResponse

@@ -48,9 +48,43 @@ class FamilyMemberReconciler
         return $diffs;
     }
 
-    private static function differs(array $old, array $parsed): bool
+    /** Các cột mang dữ liệu thật của thành viên, tức là không tính `raw_text`. */
+    private const DATA_FIELDS = ['order_code', 'product_name', 'email', 'region', 'purchase_date'];
+
+    /**
+     * Danh sách gửi lên có thêm, xóa hay đổi dữ liệu của thành viên nào không.
+     * Không ghi gì xuống DB.
+     *
+     * Không so `raw_text`: thành viên cũ chưa có `raw_text` được form dựng lại
+     * thành JSON và gửi lên, nên so cả cột đó thì family có thành viên cũ luôn
+     * bị coi là đã sửa dù người dùng không chạm vào.
+     *
+     * @param  array<int, array{id: int|null, text: string}>  $submitted
+     */
+    public static function changesMemberData(Family $family, array $submitted): bool
     {
-        foreach (self::COMPARABLE_FIELDS as $field) {
+        $existing = $family->members()->get()->keyBy('id');
+
+        foreach ($submitted as $row) {
+            $id = $row['id'] ?? null;
+
+            if ($id === null || ! $existing->has($id)) {
+                return true;
+            }
+
+            $old = $existing->pull($id)->getRawOriginal();
+
+            if (self::differs($old, MemberTextParser::parse($row['text'] ?? ''), self::DATA_FIELDS)) {
+                return true;
+            }
+        }
+
+        return $existing->isNotEmpty();
+    }
+
+    private static function differs(array $old, array $parsed, array $fields = self::COMPARABLE_FIELDS): bool
+    {
+        foreach ($fields as $field) {
             if ((string) ($old[$field] ?? '') !== (string) ($parsed[$field] ?? '')) {
                 return true;
             }

@@ -61,6 +61,21 @@
                                 <button type="button" title="Thanh toán nhanh" onclick="document.getElementById('quickpay-modal-{{ $family->id }}').style.display = 'flex'" style="display: flex; align-items: center; gap: 4px; background: none; border: none; padding: 0; color: #2563eb; font-size: 13px; cursor: pointer;">
                                     <i class="ki-filled ki-bill"></i> Thanh toán
                                 </button>
+                                @if ($family->is_locked)
+                                <form method="POST" action="{{ route('families.unlock', $family) }}" class="inline">
+                                    @csrf
+                                    <button type="submit" title="Đang khóa thành viên - bấm để mở khóa" onclick="return confirm('Mở khóa family này? Sau khi mở khóa có thể sửa thành viên.')" style="background: none; border: none; padding: 0; color: #d97706; font-size: 16px; cursor: pointer;">
+                                        <i class="ki-filled ki-lock"></i>
+                                    </button>
+                                </form>
+                                @else
+                                <form method="POST" action="{{ route('families.lock', $family) }}" class="inline">
+                                    @csrf
+                                    <button type="submit" title="Khóa thành viên" onclick="return confirm('Khóa family này? Khi khóa sẽ không sửa được thành viên.')" style="background: none; border: none; padding: 0; color: #9ca3af; font-size: 16px; cursor: pointer;">
+                                        <i class="ki-filled ki-lock-3"></i>
+                                    </button>
+                                </form>
+                                @endif
                                 <a href="{{ route('families.edit', $family) }}" title="Sửa" style="color: #3b82f6; font-size: 16px;">
                                     <i class="ki-filled ki-pencil"></i>
                                 </a>
@@ -404,6 +419,18 @@
             dot: '#8b5cf6',
             badgeBg: '#ede9fe',
             badgeColor: '#6d28d9'
+        },
+        lock: {
+            label: 'Khóa',
+            dot: '#d97706',
+            badgeBg: '#fef3c7',
+            badgeColor: '#b45309'
+        },
+        unlock: {
+            label: 'Mở khóa',
+            dot: '#6b7280',
+            badgeBg: '#f3f4f6',
+            badgeColor: '#374151'
         },
     };
 
