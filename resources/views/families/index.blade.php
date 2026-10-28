@@ -79,6 +79,7 @@
                                 <a href="{{ route('families.edit', $family) }}" title="Sửa" style="color: #3b82f6; font-size: 16px;">
                                     <i class="ki-filled ki-pencil"></i>
                                 </a>
+                                @can('delete-family')
                                 <form method="POST" action="{{ route('families.destroy', $family) }}" class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -86,6 +87,7 @@
                                         <i class="ki-filled ki-trash"></i>
                                     </button>
                                 </form>
+                                @endcan
                             </div>
                         </div>
                         <hr style="border-color: #e5e7eb; margin-bottom: 12px;">

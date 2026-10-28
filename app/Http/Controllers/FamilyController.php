@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class FamilyController extends Controller
@@ -149,6 +150,11 @@ class FamilyController extends Controller
 
     public function destroy(Family $family): RedirectResponse
     {
+        // Nút xóa đã bị ẩn với tài khoản không có quyền, nhưng vẫn gửi DELETE trực tiếp được.
+        if (Gate::denies('delete-family')) {
+            return redirect()->route('families.index')->with('error', 'Tài khoản của bạn không có quyền xóa family.');
+        }
+
         $family->delete();
 
         return redirect()->route('families.index')->with('success', 'Xóa family thành công!');
